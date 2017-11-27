@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent" >
+
+    <FrameLayout
+        android:id="@+id/main_window"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible" >
+        <com.qiniu.pili.droid.rtcstreaming.RTCSurfaceView
+            android:id="@+id/main_gl_surface_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible"/>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="right|center_vertical"
+        android:layout_marginRight="8dp" >
+
+        <FrameLayout
+            android:id="@+id/small_windowA"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClickSmallWindowA"
+            android:visibility="invisible" >
+            <com.qiniu.pili.droid.rtcstreaming.RTCSurfaceView
+                android:id="@+id/small_gl_surface_view_A"
+                android:layout_width="120dp"
+                android:layout_height="160dp"
+                android:visibility="visible"/>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/small_windowB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClickSmallWindowB"
+            android:layout_marginTop="4dp"
+            android:visibility="invisible" >
+            <com.qiniu.pili.droid.rtcstreaming.RTCSurfaceView
+                android:id="@+id/small_gl_surface_view_B"
+                android:layout_width="120dp"
+                android:layout_height="160dp"
+                android:visibility="visible"/>
+        </FrameLayout>
+    </LinearLayout>
+
+</FrameLayout>

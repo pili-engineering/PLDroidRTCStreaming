@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_floating_material_dark"
+    tools:context=".activity.streaming.RTCStreamingActivity" >
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/audio"
+        android:layout_gravity="center"
+        android:layout_margin="20dp"/>
+
+    <com.qiniu.pili.droid.rtcstreaming.RTCSurfaceView
+        android:id="@+id/RemoteAnchorView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"/>
+
+    <Button
+        android:id="@+id/ControlButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="开始直播"
+        android:layout_marginBottom="5dp"
+        android:layout_marginRight="5dp"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:textColor="@android:color/white"
+        android:background="@drawable/blue_btn_selector"
+        android:onClick="onClickStreaming" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_close"
+        android:layout_margin="15dp"
+        android:layout_gravity="top|right"
+        android:background="@drawable/bg_pressed"
+        android:onClick="onClickExit" />
+
+    <TextView
+        android:id="@+id/StatusTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:layout_margin="15dp"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:textSize="15sp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="10dp"
+        android:orientation="horizontal" >
+        <CheckBox
+            android:id="@+id/ConferenceCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:text="连麦"
+            android:visibility="invisible" />
+        <CheckBox
+            android:id="@+id/MuteCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_marginLeft="2dp"
+            android:button="@drawable/mute_btn_selector" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/StatTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left"
+        android:layout_margin="20dp"
+        android:textSize="20sp"/>
+</FrameLayout>

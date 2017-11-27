@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <SurfaceView
+        android:id="@+id/LocalPreviewSurface"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="right|center_vertical"
+        android:layout_marginRight="5dp" >
+
+        <FrameLayout
+            android:id="@+id/RemoteWindowA"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible" >
+            <com.qiniu.pili.droid.rtcstreaming.RTCSurfaceView
+                android:id="@+id/RemoteGLSurfaceViewA"
+                android:layout_width="120dp"
+                android:layout_height="160dp"
+                android:visibility="invisible"/>
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_close"
+                android:layout_gravity="top|right"
+                android:background="@drawable/bg_pressed"
+                android:onClick="onClickKickoutUserA" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/RemoteWindowB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible" >
+            <com.qiniu.pili.droid.rtcstreaming.RTCSurfaceView
+                android:id="@+id/RemoteGLSurfaceViewB"
+                android:layout_width="120dp"
+                android:layout_height="160dp"
+                android:visibility="invisible"/>
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_close"
+                android:layout_gravity="top|right"
+                android:background="@drawable/bg_pressed"
+                android:onClick="onClickKickoutUserB" />
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/ControlButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="开始直播"
+        android:layout_marginBottom="5dp"
+        android:layout_marginRight="5dp"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:textColor="@android:color/white"
+        android:background="@drawable/blue_btn_selector"
+        android:onClick="onClickStreaming" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_switch_camera"
+        android:layout_margin="15dp"
+        android:layout_gravity="center_horizontal|top"
+        android:background="@drawable/bg_pressed"
+        android:onClick="onClickSwitchCamera" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_close"
+        android:layout_margin="15dp"
+        android:layout_gravity="top|right"
+        android:background="@drawable/bg_pressed"
+        android:onClick="onClickExit" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_encoding_mirror"
+        android:onClick="onClickEncodingMirror"
+        android:layout_margin="2dp"
+        android:layout_gravity="left|center_vertical" />
+
+    <TextView
+        android:id="@+id/StatusTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:layout_margin="15dp"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:textSize="15sp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="10dp"
+        android:orientation="horizontal" >
+        <CheckBox
+            android:id="@+id/ConferenceCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:text="连麦"
+            android:visibility="invisible" />
+        <CheckBox
+            android:id="@+id/MuteCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_marginLeft="2dp"
+            android:button="@drawable/mute_btn_selector" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/StatTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left"
+        android:layout_margin="10dp"
+        android:textSize="15sp"/>
+
+</FrameLayout>
