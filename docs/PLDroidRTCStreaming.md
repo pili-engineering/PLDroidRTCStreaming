@@ -1,9 +1,3 @@
----
-title: Android 连麦 SDK
-layout: document
-search: true
-breadcrumb: [开发者中心@/,帮助文档@/article/index.html,直播云@/article/index.html#pili,SDKs@/article/index.html#pili-sdk]
----
 <a id="1"></a>
 
 # 1. 概述
@@ -110,7 +104,7 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 |   RTCConferenceState  |   连麦相关状态码    |   READY、RECONNECTING 等     |
 |   RTCErrorCode        |   连麦相关错误码    |    无效的 token、未初始化等     |
 
-`上述着重阐述连麦相关接口类，推流相关接口类详见`[推流 SDK 官方文档](https://developer.qiniu.com/pili/sdk/3719/PLDroidMediaStreaming-function-using)
+**上述着重阐述连麦相关接口类，推流相关接口类详见**[推流 SDK 官方文档](https://developer.qiniu.com/pili/sdk/3719/PLDroidMediaStreaming-function-using)
 
 <a id="3"></a>
 
@@ -505,7 +499,7 @@ public static void deinit();
 
 ### 6.2.1 引擎的初始化/销毁
 
-初始化和反初始化建议在整个 app 开始运行和最终销毁时调用，调用一次即可，初始化后不会在后台占用 CPU 资源
+初始化和反初始化建议在整个 app 开始运行和最终销毁时调用，调用一次即可，初始化后不会在后台占用 CPU 资源
 
 ```java
 /**
@@ -1047,7 +1041,7 @@ public void stopPlayback()
 
 ### 6.3.1 引擎的初始化/销毁
 
-初始化和反初始化建议在整个 app 开始运行和最终销毁时调用，调用一次即可，初始化后不会在后台占用 CPU 资源
+初始化和反初始化建议在整个 app 开始运行和最终销毁时调用，调用一次即可，初始化后不会在后台占用 CPU 资源
 
 ```java
 /**
@@ -1427,7 +1421,7 @@ public interface RTCStreamStatsCallback {
 
 ### 6.4.1 引擎的初始化/销毁
 
-初始化和反初始化建议在整个 app 开始运行和最终销毁时调用，调用一次即可，初始化后不会在后台占用 CPU 资源
+初始化和反初始化建议在整个 app 开始运行和最终销毁时调用，调用一次即可，初始化后不会在后台占用 CPU 资源
 
 ```java
 /**
@@ -2426,7 +2420,7 @@ void onRemoteAudioUnpublished(String userId);
 - 由于主播上行带宽有限，因此，连麦码率可以配置得相对低一点，从而优先保证推流的质量
 - 连麦观众的码率可以配置得相对高一点，这样可以保证在主播端合流后的画面质量
 - 推流的码率是在 `StreamingProfile` 中配置的，具体参考：[《推流参数设置》](https://github.com/pili-engineering/PLDroidMediaStreaming/wiki/5-功能使用#5.3)
-- 连麦的码率是在 `RTCConferenceOptions` 中配置的，具体参考：《3.4.3 RTCConferenceOptions》
+- 连麦的码率是在 `RTCConferenceOptions` 中配置的，具体参考：《6.5.3 RTCConferenceOptions》
 - 推荐阅读：[《码率、fps、分辨率对清晰度及流畅度的影响》](https://github.com/pili-engineering/PLDroidMediaStreaming/wiki/6-知识补充与建议#6.1)
 
 <a id="7.5"></a>
@@ -2439,13 +2433,13 @@ void onRemoteAudioUnpublished(String userId);
 
   由于连麦对象的画面是小窗口，因此，对于连麦者，可以考虑使用比主播小一些的画面尺寸，这样可以显著降低主播端对连麦画面的剪裁压力。
 
-  注：连麦画面尺寸的配置参考：《3.4.3.7 设置连麦编码器输出的画面尺寸级别》
+  注：连麦画面尺寸的配置参考：《6.5.3.5 设置连麦编码器输出的画面尺寸级别》
 
 - 合理配置主播端的合流参数
 
   主播端配置连麦合流窗口的尺寸尽量接近连麦者的画面尺寸，比如：如果连麦者输出的画面尺寸是 320 x 240 ，那么主播端配置该对象合流的尺寸就用 320 x 240 或者小于该尺寸的值，这样可以避免或者减少主播端对连麦画面进行拉伸，画面拉伸需要进行插值，非常消耗 CPU 。
 
-  注：合流参数的配置参考：《3.4.4 RTCVideoWindow》
+  注：合流参数的配置参考：《6.5.4 RTCVideoWindow》
 
 - 合理配置主播端预览尺寸
 
@@ -2455,7 +2449,7 @@ void onRemoteAudioUnpublished(String userId);
 
   连麦对讲的时候，画面很少剧烈运动，一般 15～20 帧的帧率足够了，降低帧率，可以显著降低 CPU 的处理压力，从而优化功耗。
 
-  注：连麦帧率的配置参考：《3.4.3.5 设置连麦编码器输出的帧率》
+  注：连麦帧率的配置参考：《6.5.3.3 设置连麦编码器输出的帧率》
 
 <a id="7.6"></a>
 
