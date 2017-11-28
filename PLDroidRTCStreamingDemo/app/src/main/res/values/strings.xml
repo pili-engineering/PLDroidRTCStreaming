@@ -1,0 +1,76 @@
+<resources>
+    <string name="app_name">七牛连麦 Demo</string>
+
+    <string name="failed_to_start_streaming">无法成功开启直播 ！</string>
+    <string name="failed_to_start_conference">无法成功开启连麦，错误码：</string>
+
+    <string name="start_streaming">开始直播</string>
+    <string name="stop_streaming">停止直播</string>
+
+    <string name="start_conference">开始连麦</string>
+    <string name="stop_conference">结束连麦</string>
+
+    <string name="mirror_success">镜像成功</string>
+
+    <string name="streaming_stopping">正在停止...</string>
+    <string name="ready">就绪</string>>
+    <string name="streaming">直播中...</string>
+    <string name="preparing">准备中...</string>
+    <string name="disconnected">连接断开</string>
+    <string name="stream_state_not_ready">当前不在就绪状态，不能开启直播 ！</string>
+
+    <string name="prepare_title">准备直播</string>
+    <string name="prepare_tips">请稍等，直播准备中...</string>
+
+    <string name="failed_open_camera">无法打开摄像头 !</string>
+    <string name="failed_open_microphone">无法打开麦克风 !</string>
+    <string name="failed_to_publish_av_to_rtc">无法发布视频到房间, 错误码：</string>
+    <string name="mute_must_in_streaming_status">必须开始连麦或者推流后才能静音 !</string>
+
+    <string name="success_publish_video_to_rtc">成功发布视频到房间 !</string>
+    <string name="success_publish_audio_to_rtc">成功发布音频到房间 !</string>
+
+    <string name="io_error">网络连接错误 !</string>
+    <string name="network_disconnected">网络连接断开 !</string>
+
+    <string name="user_join_conference">其他用户加入连麦 !</string>
+    <string name="user_leave_conference">其他用户离开连麦 !</string>
+
+    <string name="engine_not_initialized">引擎未初始化 </string>
+    <string name="not_join_room">没有加入房间 ！</string>
+    <string name="join_room_failed">无法加入房间，错误码：</string>
+    <string name="reconnecting">网络断线，正在重连RTC服务器 ！</string>
+    <string name="reconnected">成功重连RTC服务器 ！</string>
+    <string name="reconnect_failed">无法连接RTC服务器 ！</string>
+    <string name="user_join_other_where">用户在其它地方登录 ！</string>
+    <string name="user_kickout_by_host">您被主持人踢出房间 ！</string>
+
+    <string name="pls_input_room_name">请输入房间名称 ！</string>
+    <string name="server_not_configure">请先开发服务器端，配置好相关地址</string>
+
+    <string name="button_capture">截  帧</string>
+    <string name="button_preview_mirror">镜像(预览)</string>
+    <string name="button_encoding_mirror">镜像(编码)</string>
+    <string name="button_log_stats">打印统计信息</string>
+    <string name="button_mute_speaker">静音(远端)</string>
+    <string name="button_unmute_speaker">取消静音(远端)</string>
+    <string name="button_subscribe">订阅视频</string>
+    <string name="button_unsubscribe">取消订阅</string>
+    <string name="button_adjust_bitrate">调整码率</string>
+    <string name="button_toggle_picture_streaming">图片推流</string>
+    <string name="button_change_picture_path">切换图片</string>
+    <string name="button_start_playback">开启返听</string>
+
+    <string name="others_muted">已静音其他人</string>
+    <string name="others_unmuted">已取消静音其他人</string>
+    <string name="others_fail">开始连麦后才能静音</string>
+
+    <string name="log_stats_failed">无法获取统计信息</string>
+    <string name="button_mixed_callback_enable">打印合流回调</string>
+    <string name="button_mixed_callback_disable">取消打印合流回调</string>
+    <string name="demo_description">
+        直播连麦：该模块是包含推流功能的连麦模块，用户可以扮演主播、副主播以及观众等三种角色\n\n视频互动：该模块是连麦互动模块，不包含推流功能，但是包含更灵活的音视频操作接口，用户可以自由的加入房间进行视频互动
+    </string>
+    <string name="rtc_rtmp">直播连麦</string>
+    <string name="rtc_only">视频互动</string>
+</resources>
