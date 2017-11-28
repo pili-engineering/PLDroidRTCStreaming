@@ -8,13 +8,13 @@ breadcrumb: [开发者中心@/,帮助文档@/article/index.html,直播云@/artic
 
 # 1. 概述
 
-PLDroidRTCStreaming 是基于 [PLDroidMediaStreaming](https://github.com/pili-engineering/PLDroidMediaStreaming) 开发的一套具有连麦功能的 SDK，既可以在不影响原有推流的基础上，使用简单易用的连麦 API，快速实现直播连麦功能。也可以抛开推流模块，使用更加灵活的连麦 API，快速实现纯视频连麦互动的功能。
+PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互动 SDK，支持低延时音视频通话、RTMP 直播推流，可快速开发一对一视频聊天、多人视频会议、网红直播连麦、狼人杀、娃娃机等应用，接口简单易用，支持高度定制以及二次开发。
 
 ## 1.1 最新版内容提要
 
 **[Android] 连麦 SDK v2.0.0 发布**
 
-PLDroidRTCStreaming 是基于 PLDroidMediaStreaming 开发的一套具有连麦功能的 SDK，既可以在不影响原有推流的基础上，使用简单易用的连麦 API，快速实现直播连麦功能。也可以抛开推流模块，使用更加灵活的连麦 API，快速实现纯视频连麦互动的功能。
+PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互动 SDK，支持低延时音视频通话、RTMP 直播推流，可快速开发一对一视频聊天、多人视频会议、网红直播连麦、狼人杀、娃娃机等应用，接口简单易用，支持高度定制以及二次开发。
 
 **版本**
 
@@ -26,9 +26,7 @@ PLDroidRTCStreaming 是基于 PLDroidMediaStreaming 开发的一套具有连麦�
 - 发布 libpldroid_streaming_h264_encoder.so
 - 发布 libpldroid_streaming_core.so
 
-<a id="2"></a>
-
-# 2. 功能列表
+## 1.2 功能列表
 
 - 基本的推流和连麦对讲功能
 - 基本的视频合流和音频混音功能
@@ -51,6 +49,68 @@ PLDroidRTCStreaming 是基于 PLDroidMediaStreaming 开发的一套具有连麦�
 - 支持获取远端麦克风音量大小
 - 支持推流码率的自动调节/手动调节
 - 支持获取连麦房间统计信息（帧率、码率等）
+
+<a id="2"></a>
+
+# 2. 总体设计
+
+## 2.1 基本规则
+
+为了方便理解和使用，对于 SDK 的接口设计，我们遵循了如下的规则：
+
+- 每一个 `连麦` 接口类，均以 `RTC` 开头
+- 所有的回调接口类，均以 `RTCXXXCallback` 或 `RTCXXXListener` 命名
+
+## 2.2 核心接口类
+
+核心接口类说明如下：
+
+|   接口类名    |   功能  |   备注  |
+|--------------|--------|---------|
+|   RTCConferenceManager       |    负责互动连麦（不含推流）  |    适用于互动连麦的场景（狼人杀、视频会议等场景）   |
+|   RTCMediaStreamingManager   |    负责 RTMP 直播连麦      |    适用于使用 SDK 内部采集进行直播连麦的场景      |
+|   RTCStreamingManager        |    负责 RTMP 直播连麦      |    适用于使用外部导入数据进行直播连麦的场景        |
+|   ScreenStreamingManager     |    负责 RTMP 录屏直播      |    适用于录屏直播的场景                        |
+
+## 2.3 配置相关接口类
+
+连麦配置相关接口类说明如下：
+
+|   接口类名    |   功能  |   备注  |
+|--------------|--------|---------|
+|   RTCConferenceOptions        |    配置连麦相关参数        |    连麦分辨率、帧率、码率等        |
+|   RTCAudioSource              |    配置静音的目标设备      |    提供静音相关设备的枚举类型      |
+|   RTCCameraParamSelectListener|    配置纯互动连麦下预览尺寸 |    返回期望的摄像头采集尺寸        |
+|   RTCServerRegion             |    配置连麦服务器首选区域   |    中国、美国、德国等             |
+
+## 2.4 回调相关接口类
+
+|   接口类名    |   功能  |   备注  |
+|--------------|--------|---------|
+|   RTCAudioLevelCallback            |      回调连麦者音量            |    0-10 级音量回调        |
+|   RTCFrameCapturedCallback         |      回调截帧操作的结果信息     |    截帧成功或失败          |
+|   RTCFrameMixedCallback            |      回调合流后的音视频数据     |    合流的音视频原始数据     |
+|   RTCStartConferenceCallback       |      回调连麦成功/失败信息      |    连麦成功/失败           |
+|   RTCStreamStatsCallback           |      回调连麦房间内的数据信息    |   连麦者的帧率、码率等      |
+|   RTCUserEventListener             |      回调远端连麦的事件         |   远端连麦者加入/离开房间等  |
+|   RTCRemoteWindowEventListener     |      回调远端窗口事件          |    远端画面的渲染信息等      |
+|   RTCConferenceStateChangedListener|      回调连麦状态信息          |    打开摄像头、麦克风失败等   |
+
+## 2.5 控件相关接口类
+
+|   接口类名    |   功能  |   备注  |
+|--------------|--------|---------|
+|   RTCSurfaceView  |   渲染远端画面的控件   |   渲染远端画面          |
+|   RTCVideoWindow  |   远端连麦窗口控件     |   可配置窗口合流位置等   |
+
+## 2.6 状态相关接口类
+
+|   接口类名    |   功能  |   备注  |
+|--------------|--------|---------|
+|   RTCConferenceState  |   连麦相关状态码    |   READY、RECONNECTING 等     |
+|   RTCErrorCode        |   连麦相关错误码    |    无效的 token、未初始化等     |
+
+`上述着重阐述连麦相关接口类，推流相关接口类详见`[推流 SDK 官方文档](https://developer.qiniu.com/pili/sdk/3719/PLDroidMediaStreaming-function-using)
 
 <a id="3"></a>
 
@@ -99,9 +159,17 @@ PLDroidRTCStreaming 是基于 PLDroidMediaStreaming 开发的一套具有连麦�
 
 SDK 主要包含 demo 代码、sdk jar 包，以及 sdk 依赖的动态库文件。
 
-其中，release 目录下是需要拷贝到您的 Android 工程的所有文件，列表如下：
+其中，release 目录下是需要拷贝到您的 Android 工程的所有文件，以 armeabi-v7a 架构为例，具体如下：
 
-![](http://oixtcd8hs.bkt.clouddn.com/release.jpg)
+| 文件名称                           | 功能      | 大小    | 备注          |
+| ------------------------------ | ------- | ----- | ----------- |
+|   pldroid-rtc-x.y.z.jar                   |   SDK 库    |   749KB   |   必须依赖                                         |
+|   libpldroid_mmprocessing.so              |   图像处理   |   559KB   |   含推流场景必须依赖，不含推流场景如无需使用内置美颜可以去掉|
+|   libpldroid_rtc_streaming.so             |   连麦      |   5.8MB   |   不使用连麦可以去掉                                 |
+|   libpldroid_streaming_core.so            |   推流      |   83KB    |   不使用推流可以去掉                                 |
+|   libpldroid_streaming_amix.so            |   混音      |   210KB   |   不使用混音可以去掉                                 |
+|   libpldroid_streaming_aac_encoder.so     |   AAC 软编  |   116KB   |   不使用 AAC 软编可去掉                              |
+|   libpldroid_streaming_h264_encoder.so    |   H264 软编 |   850KB   |   不使用 H264 软编可以去掉                           |
 
 - 将 pldroid-rtc-x.y.z.jar 包拷贝到您的工程的 libs 目录下
 - 将动态库拷贝到您的工程对应的目录下，例如：armeabi-v7a 目录下的 so 则拷贝到工程的 jniLibs/armeabi-v7a 目录下
