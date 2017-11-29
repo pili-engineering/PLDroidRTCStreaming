@@ -137,7 +137,7 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 
 ### 6.1 连麦功能是否收费？
 
-客户端 SDK 不收费，服务端可按照带宽、流量或者时长收费，具体请联系七牛商务。
+客户端 SDK 不收费，服务端可按照带宽、流量或者时长收费，具体请联系七牛商务或者技术支持。
 
 ### 6.2 连麦对讲延时多大？
 
@@ -146,3 +146,11 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 ### 6.3 如何从 v1 版本连麦更新到 v2 版本？
 
 可参考 [这个文档](https://github.com/pili-engineering/PLDroidRTCStreaming/blob/master/docs/how-to-upgrade-to-v2.md)
+
+### 6.4 运行 demo 后的账号密码哪里来 ？
+
+请联系七牛的商务或者技术支持，获取账号密码。
+
+### 6.5 是否有开源的服务端代码可以参考 ？
+
+有的，请参考： [pili-sdk-demo-server](https://github.com/pili-engineering/pili-sdk-demo-server)
