@@ -50,9 +50,7 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 
 ### 2.2 交互流程
 
-<div align=center>
 ![](screenshots/pili-rtc-interactive.png)
-</div>
 
 连麦交互流程如上图所示，因此，App 服务端需要开发的工作如下：
 
@@ -74,7 +72,9 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 
 ### 3.1 视频会议
 
+<div align=center>
 ![](screenshots/pili-rtc-meeting.png)
+</div>
 
 如图所示，仅用连麦系统就可以满足视频会议场景的需求。假设有 n 个人参与会议，对于连麦系统来讲，这 n 个人的角色都是一致的，每个人需要上行一路自己的流到 RTC Server，同时拉取会议中的其它 n-1 路流到本地进行播放。与会者可以随时打开/关闭音/视频来满足不同场景的需求。
 
