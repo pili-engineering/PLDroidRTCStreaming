@@ -50,7 +50,9 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 
 ### 2.2 交互流程
 
+<div align=center>
 ![](screenshots/pili-rtc-interactive.png)
+</div>
 
 连麦交互流程如上图所示，因此，App 服务端需要开发的工作如下：
 
