@@ -32,7 +32,7 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 
 ### 2.1 系统框图
 
-![](screenshots/pili-rtc-overview-arch.png)
+![](../screenshots/pili-rtc-overview-arch.png)
 
 整个连麦系统的架构如上图所示。主要分为三个部分：
 
@@ -50,7 +50,7 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 
 ### 2.2 交互流程
 
-![](screenshots/pili-rtc-interactive.png)
+![](../screenshots/pili-rtc-interactive.png)
 
 连麦交互流程如上图所示，因此，App 服务端需要开发的工作如下：
 
@@ -58,27 +58,27 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 - 计算连麦的 roomToken 并提供给 App，该 roomToken 是结合 userId、roomName 等信息使用七牛的 AccessKey 和 SecretKey 按照一定的规则生成
 - 提供连麦的业务逻辑，如：观众申请连麦，主播同意/拒绝连麦、进入/退出房间等消息处理
 
-关于 roomToken 的计算方法及 RTC Server API 的说明请查阅 [Server 连麦 SDK](https://developer.qiniu.com/pili/sdk/1640/server-rtc-sdk) ，另外，我们也开源了一份 [App Server 的实现代码供开发者参考](https://github.com/pili-engineering/pili-sdk-demo-server)。
+关于 roomToken 的计算方法及 RTC Server API 的说明请查阅  [七牛连麦服务端 API 接口规范 v2.0](https://github.com/pili-engineering/PLDroidRTCStreaming/blob/master/docs/Qiniu-RTC-Server-API-v2.md)，另外，我们也开源了一份 [App Server 的实现代码供开发者参考](https://github.com/pili-engineering/pili-sdk-demo-server)。
 
 ### 2.3 房间管理
 
 连麦本质上是一个视频会议，因此我们引入了连麦房间的概念，用于隔离不同主播的连麦过程，保障数据的安全及独立。连麦系统要求连麦的各方必须首先进入同一个连麦房间，然后才能开始视频会议的过程。
 
-![](screenshots/pili-rtc-room-manage.png)
+![](../screenshots/pili-rtc-room-manage.png)
 
-房间的 API 主要分为两个部分，一部分在客户端，另一部分在服务端。在客户端 SDK 中，只有加入/离开连麦房间的接口。我们把创建/销毁连麦房间的功能放到了服务端，由 App Server 向七牛的服务器发送请求来完成。关于服务端 API 的详细内容，请查阅 [Server 连麦 SDK](https://developer.qiniu.com/pili/sdk/1640/server-rtc-sdk)。
+房间的 API 主要分为两个部分，一部分在客户端，另一部分在服务端。在客户端 SDK 中，只有加入/离开连麦房间的接口。我们把创建/销毁连麦房间的功能放到了服务端，由 App Server 向七牛的服务器发送请求来完成。关于服务端 API 的详细内容，请查阅  [七牛连麦服务端 API 接口规范 v2.0](https://github.com/pili-engineering/PLDroidRTCStreaming/blob/master/docs/Qiniu-RTC-Server-API-v2.md)。
 
 ## 3 应用场景
 
 ### 3.1 视频会议
 
-![](screenshots/pili-rtc-meeting.png)
+![](../screenshots/pili-rtc-meeting.png)
 
 如图所示，仅用连麦系统就可以满足视频会议场景的需求。假设有 n 个人参与会议，对于连麦系统来讲，这 n 个人的角色都是一致的，每个人需要上行一路自己的流到 RTC Server，同时拉取会议中的其它 n-1 路流到本地进行播放。与会者可以随时打开/关闭音/视频来满足不同场景的需求。
 
 ### 3.2 狼人杀
 
-![](screenshots/pili-rtc-wolf.png)
+![](../screenshots/pili-rtc-wolf.png)
 
 狼人杀的场景如图所示。当前正在发言的玩家，发布自己的流到 RTC Server，其它玩家从 RTC Server 拉取该玩家的流。这部分功能使用连麦系统即可完成。如果需要直播游戏过程或者落存储，则可从 RTC Server 将当前正在发言的玩家转推一路 RTMP 流到 RTMP Server 上，再通过 CDN 分发给普通观众或者落存储。
 
@@ -104,7 +104,7 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 
 ##### 客户端合流
 
-![](screenshots/pili-rtc-client-streaming.png)
+![](../screenshots/pili-rtc-client-streaming.png)
 如图所示，该方案下主播的工作流程如下：
 
 打开本地摄像头预览 -> 初始化推流参数 -> 开始推流（主播画面）-> -> -> 收到连麦申请(业务服务器) -> 同意连麦申请(业务服务器) -> 开始连麦-> 持续推流（合成画面） -> -> -> 结束连麦-> 持续推流（主播画面）-> -> -> 结束推流
@@ -113,13 +113,13 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 
 ##### 服务端合流
 
-![](screenshots/pili-rtc-server-streaming.png)
+![](../screenshots/pili-rtc-server-streaming.png)
 
 从上图可以看出，该方案下主播的工作流程与客户端合流最大的区别是连麦过程中的合流+推流的工作由主播端转移到了服务端，因此，可降低主播手机的功耗及减轻上行带宽的压力。与此同时，也给服务器带来更大的压力和更高的性能要求。
 
 ### 3.4 在线娃娃机
 
-![](screenshots/pili-rtc-catch-toy.png)
+![](../screenshots/pili-rtc-catch-toy.png)
 
 如图所示，玩家与娃娃机摄像头之间数据通过 RTC Server 传输，玩家与摄像头画面经服务端合成后推流到 RTMP Server，普通观众通过 CDN 拉取观看。
 
@@ -137,7 +137,7 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 
 ### 6.1 连麦功能是否收费？
 
-客户端 SDK 不收费，服务端可按照带宽、流量或者时长收费，具体请联系七牛商务。
+客户端 SDK 不收费，服务端可按照带宽、流量或者时长收费，具体请联系七牛商务或者技术支持。
 
 ### 6.2 连麦对讲延时多大？
 
@@ -146,3 +146,12 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 ### 6.3 如何从 v1 版本连麦更新到 v2 版本？
 
 可参考 [这个文档](https://github.com/pili-engineering/PLDroidRTCStreaming/blob/master/docs/how-to-upgrade-to-v2.md)
+
+### 6.4 运行 demo 后的账号密码哪里来 ？
+
+请联系七牛的商务或者技术支持，获取账号密码。
+
+### 6.5 是否有开源的服务端代码可以参考 ？
+
+有的，请参考： [pili-sdk-demo-server](https://github.com/pili-engineering/pili-sdk-demo-server)
+
