@@ -154,4 +154,3 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 ### 6.5 是否有开源的服务端代码可以参考 ？
 
 有的，请参考： [pili-sdk-demo-server](https://github.com/pili-engineering/pili-sdk-demo-server)
-
