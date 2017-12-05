@@ -113,7 +113,6 @@ Authorization: <QiniuToken>
 {
     "room_name": "<RoomName>",
     "owner_id": "<OwnerUserID>",
-    "room_status": <RoomStatus>,
     "user_max": "<UserMax>"
 }
 612 
@@ -125,8 +124,6 @@ Authorization: <QiniuToken>
 **RoomName**: 房间名称。
 
 **OwnerUserId**: 房间的所有者。
-
-**RoomStatus**: enum类型，房间状态，0 刚创建，1 房间正在进行会议，2 房间会议已经结束。
 
 **UserMax**: int类型，该房间支持的最大会议人数。
 
