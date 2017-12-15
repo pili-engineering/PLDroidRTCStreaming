@@ -4,19 +4,18 @@ Qiniu RTC Server API 提供为 Qiniu 连麦 SDK 提供了权限验证和房间�
 
 # 2. HTTP请求鉴权
 
-Qiniu RTC Server API 通过 Qiniu Authorization 方式进行鉴权，每个房间管理HTTP 请求头部需增加一个 Authorization 字段：
+Qiniu RTC Server API 通过 Qiniu Authorization 方式进行鉴权，每个房间管理 HTTP 请求头部需增加一个 Authorization 字段：
 
-```
+```java
 Authorization: "<QiniuToken>"
 ```
 
 **QiniuToken**: 管理凭证，用于鉴权。
 
-使用七牛颁发的 `AccessKey` 和 `SecretKey` ，对本次 http 请求的信息进行签名，生成管理凭证。签名的原始数据包括 http 请求的 `Method`, `Path`, `RawQuery`, `Content-Type `及 `Body` 等信息，这些信息的获取方法取决于具体所用的编程语言，建议参照七牛提供的SDK代码。
-
+使用七牛颁发的 `AccessKey` 和 `SecretKey`，对本次 http 请求的信息进行签名，生成管理凭证。签名的原始数据包括 http 请求的 `Method`, `Path`, `RawQuery`, `Content-Type` 及 `Body` 等信息，这些信息的获取方法取决于具体所用的编程语言，建议参照七牛提供的SDK代码。
 计算过程及伪代码如下：
 
-```
+```java
 // 1.构造待签名的 Data
 
 // 添加 Method 和 Path
@@ -47,20 +46,21 @@ if bodyOK && contentTypeOK {
 
 // 2. 计算 HMAC-SHA1 签名，并对签名结果做 URL 安全的 Base64 编码
 sign = hmac_sha1(data, "Your_Secret_Key")
-encodedSign = urlsafe_base64_encode(sign)  
+encodedSign = urlsafe_base64_encode(sign)
 
 // 3. 将 Qiniu 标识与 AccessKey、encodedSign 拼接得到管理凭证
 <QiniuToken> = "Qiniu " + "Your_Access_Key" + ":" + encodedSign
+
 ```
 
 # 3. 创建房间
 
 ## 3.1 请求包
 
-```
+```java
 POST /v2/rooms
-Host: rtc.qiniuapi.com 
-Authorization: <QiniuToken> 
+Host: rtc.qiniuapi.com
+Authorization: <QiniuToken>
 Content-Type: application/json
 {
     "owner_id": "<OwnerUserId>",
@@ -77,19 +77,20 @@ Content-Type: application/json
 
 ## 3.2 返回包
 
-```
+```java
 200 OK
-{   
+{
     "room_name": "<RoomName>"
 }
 400
 {
     "error": "invalid args"
 }
-611 
+611
 {
     "error": "room already exist"
 }
+
 ```
 
 **RoomName**: 已创建的房间名称。
@@ -98,24 +99,25 @@ Content-Type: application/json
 
 ## 4.1 请求包
 
-```
-GET /v2/rooms/<RoomName> 
-Host: rtc.qiniuapi.com 
-Authorization: <QiniuToken> 
+```java
+GET /v2/rooms/<RoomName>
+Host: rtc.qiniuapi.com
+Authorization: <QiniuToken>
 ```
 
 **RoomName**: 房间名称。
 
 ## 4.2 返回包
 
-```
-200 OK 
+```java
+200 OK
 {
     "room_name": "<RoomName>",
     "owner_id": "<OwnerUserID>",
+    "room_status": <RoomStatus>,
     "user_max": "<UserMax>"
 }
-612 
+612
 {
     "error": "room not found"
 }
@@ -125,16 +127,17 @@ Authorization: <QiniuToken>
 
 **OwnerUserId**: 房间的所有者。
 
+**RoomStatus**: enum类型，房间状态，0 刚创建，1 房间正在进行会议，2 房间会议已经结束。
+
 **UserMax**: int类型，该房间支持的最大会议人数。
 
 # 5. 删除房间
 
 ## 5.1 请求包
 
-```
-
-DELETE /v2/rooms/<RoomName> 
-Host: rtc.qiniuapi.com 
+```java
+DELETE /v2/rooms/<RoomName>
+Host: rtc.qiniuapi.com
 Authorization: <QiniuToken>
 ```
 
@@ -142,8 +145,7 @@ Authorization: <QiniuToken>
 
 ## 5.2 返回包
 
-```
-
+```java
 200 OK
 612
 {
@@ -158,23 +160,79 @@ Authorization: <QiniuToken>
 
 注意，正在进行视频会议的房间（RoomStatus为1）无法删除。
 
-# 6. RoomToken 的计算
+# 6. 查询房间中的用户
+
+## 6.1 请求包
+
+```java
+GET /v2/rooms/<RoomName>/users
+Host: rtc.qiniuapi.com
+Authorization: <QiniuToken>
+```
+
+**RoomName**: 房间名称
+
+## 6.2 返回包
+
+```java
+200
+{
+    "active_users": [
+        "<ActiveUserID>",
+        ...
+    ]
+}
+612
+{
+    "error": "room not found"
+}
+
+```
+
+**ActiveUserID**: 当前在这个房间中连麦的用户
+
+# 7. 踢除连麦用户
+
+## 7.1 请求包
+
+```java
+DELETE /v2/rooms/<RoomName>/users/<UserID>
+Host: rtc.qiniuapi.com
+Authorization: <QiniuToken>
+
+```
+
+**RoomName**: 房间名称
+
+**UserID**: 要被踢除的用户
+
+## 7.2 返回包
+
+```java
+200 OK
+
+612
+{
+    "error": "room not found"
+}
+```
+
+# 8. RoomToken 的计算
 
 连麦用户终端通过房间管理鉴权获取七牛连麦服务，该鉴权包含了房间名称、用户ID、用户权限、有效时间等信息，需要通过客户的业务服务器使用七牛颁发的AccessKey和SecretKey进行签算并分发给手机APP。手机端SDK以拟定的用户ID身份连接服务器，加入该房间进行视频会议。若用户ID或房间与token内的签算信息不符，则无法通过鉴权加入房间。
 
 计算方法：
 
-```
-
+```java
 // 1. 定义房间管理凭证，并对凭证字符做URL安全的Base64编码
 roomAccess = {
-	"version": "<Version>"
+    "version": "<Version>"
     "room_name": "<RoomName>",
     "user_id": "<UserID>",
     "perm": "<Permission>",
     "expire_at": <ExpireAt>
 }
-roomAccessString = json_to_string(roomAccess) 
+roomAccessString = json_to_string(roomAccess)
 encodedRoomAccess = urlsafe_base64_encode(roomAccessString)
 
 // 2. 计算HMAC-SHA1签名，并对签名结果做URL安全的Base64编码
@@ -194,6 +252,3 @@ roomToken = "<AccessKey>" + ":" + encodedSign + ":" + encodedRoomAccess
 **ExpireAt**: int64类型，鉴权的有效时间，传入以秒为单位的64位Unix绝对时间，token将在该时间后失效
 
 **Version**: 版本号，字符串；当前版本 "2.0"
-
-
-
