@@ -7,18 +7,13 @@
              android:layout_height="match_parent"
              tools:context=".activity.streaming.RTCStreamingActivity">
 
-    <com.qiniu.pili.droid.streaming.widget.AspectFrameLayout
-        android:id="@+id/cameraPreview_afl"
+    <com.qiniu.pili.droid.rtcstreaming.demo.ui.CameraPreviewFrameView
+        android:id="@+id/cameraPreview_surfaceView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:layout_gravity="center" />
 
-        <android.opengl.GLSurfaceView
-            android:id="@+id/cameraPreview_surfaceView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center" />
-
-    </com.qiniu.pili.droid.streaming.widget.AspectFrameLayout>
+    <include layout="@layout/focus_indicator" />
 
     <LinearLayout
         android:layout_width="wrap_content"

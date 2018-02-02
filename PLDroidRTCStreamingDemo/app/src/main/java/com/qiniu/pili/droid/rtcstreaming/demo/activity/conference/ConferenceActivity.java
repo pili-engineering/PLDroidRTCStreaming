@@ -6,11 +6,11 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.media.MediaRecorder;
 import android.net.Uri;
-import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -35,10 +35,11 @@ import com.qiniu.pili.droid.rtcstreaming.RTCUserEventListener;
 import com.qiniu.pili.droid.rtcstreaming.RTCVideoWindow;
 import com.qiniu.pili.droid.rtcstreaming.demo.R;
 import com.qiniu.pili.droid.rtcstreaming.demo.core.QiniuAppServer;
+import com.qiniu.pili.droid.rtcstreaming.demo.ui.CameraPreviewFrameView;
+import com.qiniu.pili.droid.rtcstreaming.demo.ui.RotateLayout;
 import com.qiniu.pili.droid.streaming.AVCodecType;
 import com.qiniu.pili.droid.streaming.CameraStreamingSetting;
 import com.qiniu.pili.droid.streaming.MicrophoneStreamingSetting;
-import com.qiniu.pili.droid.streaming.widget.AspectFrameLayout;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -65,7 +66,11 @@ public class ConferenceActivity extends AppCompatActivity {
 
     private int mCurrentCamFacingIndex;
 
-    private GLSurfaceView mCameraPreviewFrameView;
+    private CameraPreviewFrameView mCameraPreviewFrameView;
+    private RotateLayout mRotateLayout;
+    private int mCurrentZoom = 0;
+    private int mMaxZoom = 0;
+
     private RTCVideoWindow mRTCVideoWindowA;
     private RTCVideoWindow mRTCVideoWindowB;
 
@@ -78,6 +83,10 @@ public class ConferenceActivity extends AppCompatActivity {
     private boolean mIsAudioCaptureStarted = false;
     private boolean mIsVideoPublishStarted = false;
     private boolean mIsAudioPublishStarted = false;
+    private boolean mIsInReadyState = false;
+
+    private boolean mIsPreviewOnTop = false;
+    private boolean mIsWindowAOnBottom = false;
 
     private String mUserID;
 
@@ -91,9 +100,8 @@ public class ConferenceActivity extends AppCompatActivity {
         /**
          * Step 1: find & init views
          */
-        AspectFrameLayout afl = (AspectFrameLayout) findViewById(R.id.cameraPreview_afl);
-        afl.setShowMode(AspectFrameLayout.SHOW_MODE.FULL);
-        mCameraPreviewFrameView = (GLSurfaceView) findViewById(R.id.cameraPreview_surfaceView);
+        mCameraPreviewFrameView = (CameraPreviewFrameView) findViewById(R.id.cameraPreview_surfaceView);
+        mCameraPreviewFrameView.setListener(mCameraPreviewListener);
 
         mRoomName = getIntent().getStringExtra("roomName");
 
@@ -144,7 +152,7 @@ public class ConferenceActivity extends AppCompatActivity {
          * Step 3: create streaming manager and set listeners
          */
         AVCodecType codecType = isSwCodec ? AVCodecType.SW_VIDEO_WITH_SW_AUDIO_CODEC : AVCodecType.HW_VIDEO_YUV_AS_INPUT_WITH_HW_AUDIO_CODEC;
-        mRTCConferenceManager = new RTCConferenceManager(getApplicationContext(), afl, mCameraPreviewFrameView, codecType);
+        mRTCConferenceManager = new RTCConferenceManager(getApplicationContext(), mCameraPreviewFrameView, codecType);
         mRTCConferenceManager.setConferenceStateListener(mRTCStreamingStateChangedListener);
         mRTCConferenceManager.setRemoteWindowEventListener(mRTCRemoteWindowEventListener);
         mRTCConferenceManager.setUserEventListener(mRTCUserEventListener);
@@ -205,6 +213,7 @@ public class ConferenceActivity extends AppCompatActivity {
         super.onPause();
         mRTCConferenceManager.stopVideoCapture();
         mIsVideoCaptureStarted = false;
+        mIsInReadyState = false;
     }
 
     @Override
@@ -221,6 +230,10 @@ public class ConferenceActivity extends AppCompatActivity {
     }
 
     private boolean startConference() {
+        if (!QiniuAppServer.isNetworkAvailable(this)) {
+            Toast.makeText(ConferenceActivity.this, "network is unavailable!!!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         if (mRTCConferenceManager.isConferenceStarted()) {
             return true;
         }
@@ -273,20 +286,18 @@ public class ConferenceActivity extends AppCompatActivity {
     }
 
     public void onClickRemoteWindowA(View v) {
-        FrameLayout window = (FrameLayout) v;
-        if (window.getChildAt(0).getId() == mCameraPreviewFrameView.getId()) {
-            mRTCConferenceManager.switchRenderView(mCameraPreviewFrameView, mRTCVideoWindowA.getRTCSurfaceView());
-        } else {
+        if (!mIsPreviewOnTop) {
             mRTCConferenceManager.switchRenderView(mRTCVideoWindowA.getRTCSurfaceView(), mCameraPreviewFrameView);
+            mIsPreviewOnTop = true;
+            mIsWindowAOnBottom = true;
         }
     }
 
     public void onClickRemoteWindowB(View v) {
-        FrameLayout window = (FrameLayout) v;
-        if (window.getChildAt(0).getId() == mCameraPreviewFrameView.getId()) {
-            mRTCConferenceManager.switchRenderView(mCameraPreviewFrameView, mRTCVideoWindowB.getRTCSurfaceView());
-        } else {
+        if (!mIsPreviewOnTop) {
             mRTCConferenceManager.switchRenderView(mRTCVideoWindowB.getRTCSurfaceView(), mCameraPreviewFrameView);
+            mIsPreviewOnTop = true;
+            mIsWindowAOnBottom = false;
         }
     }
 
@@ -365,6 +376,7 @@ public class ConferenceActivity extends AppCompatActivity {
         if (mIsVideoCaptureStarted) {
             mRTCConferenceManager.stopVideoCapture();
             mIsVideoCaptureStarted = false;
+            mIsInReadyState = false;
             mVideoCaptureButton.setTitle("采集视频");
         } else {
             mRTCConferenceManager.startVideoCapture();
@@ -437,6 +449,8 @@ public class ConferenceActivity extends AppCompatActivity {
         public void onConferenceStateChanged(RTCConferenceState state, int extra) {
             switch (state) {
                 case READY:
+                    mIsInReadyState = true;
+                    mMaxZoom = mRTCConferenceManager.getMaxZoom();
                     showToast(getString(R.string.ready), Toast.LENGTH_SHORT);
                     break;
                 case RECONNECTING:
@@ -539,6 +553,49 @@ public class ConferenceActivity extends AppCompatActivity {
             Log.i(TAG, "userId = " + userId + "statsType = " + statsType + " value = " + value);
         }
     };
+
+    private CameraPreviewFrameView.Listener mCameraPreviewListener = new CameraPreviewFrameView.Listener() {
+         @Override
+         public boolean onSingleTapUp(MotionEvent e) {
+             if (mIsPreviewOnTop) {
+                 if (mIsWindowAOnBottom) {
+                     mRTCConferenceManager.switchRenderView(mCameraPreviewFrameView, mRTCVideoWindowA.getRTCSurfaceView());
+                 } else {
+                     mRTCConferenceManager.switchRenderView(mCameraPreviewFrameView, mRTCVideoWindowB.getRTCSurfaceView());
+                 }
+                 mIsPreviewOnTop = false;
+                 mIsWindowAOnBottom = false;
+                 return true;
+             }
+             Log.i(TAG, "onSingleTapUp X:" + e.getX() + ",Y:" + e.getY());
+             if (mIsInReadyState) {
+                 setFocusAreaIndicator();
+                 mRTCConferenceManager.doSingleTapUp((int) e.getX(), (int) e.getY());
+                 return true;
+             }
+             return false;
+         }
+
+        @Override
+         public boolean onZoomValueChanged(float factor) {
+            if (mIsInReadyState && mRTCConferenceManager.isZoomSupported()) {
+                mCurrentZoom = (int) (mMaxZoom * factor);
+                mCurrentZoom = Math.min(mCurrentZoom, mMaxZoom);
+                mCurrentZoom = Math.max(0, mCurrentZoom);
+                Log.d(TAG, "zoom ongoing, scale: " + mCurrentZoom + ",factor:" + factor + ",maxZoom:" + mMaxZoom);
+                mRTCConferenceManager.setZoomValue(mCurrentZoom);
+            }
+            return false;
+        }
+     };
+
+    protected void setFocusAreaIndicator() {
+        if (mRotateLayout == null) {
+            mRotateLayout = (RotateLayout) findViewById(R.id.focus_indicator_rotate_layout);
+            mRTCConferenceManager.setFocusAreaIndicator(mRotateLayout,
+                    mRotateLayout.findViewById(R.id.focus_indicator));
+        }
+    }
 
     private CameraStreamingSetting.CAMERA_FACING_ID chooseCameraFacingId() {
         if (CameraStreamingSetting.hasCameraFacing(CameraStreamingSetting.CAMERA_FACING_ID.CAMERA_FACING_3RD)) {

@@ -12,9 +12,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pili.pldroid.player.PLNetworkManager;
@@ -37,6 +39,7 @@ public class RTCStreamingEntryActivity extends AppCompatActivity {
     private ProgressDialog mProgressDialog;
     private CheckBox mCheckBoxBeauty;
     private CheckBox mCheckBoxWatermark;
+    private CheckBox mCheckBoxQuic;
     private CheckBox mCheckBoxDebugMode;
     private CheckBox mCheckBoxCustomSetting;
     private CheckBox mCheckBoxAudioLevel;
@@ -47,6 +50,9 @@ public class RTCStreamingEntryActivity extends AppCompatActivity {
     private Spinner mEncodingSizeRatioSpinner;
     private Spinner mEncodingSizeLevelSpinner;
     private Spinner mEncodingConfigSpinner;
+    private Spinner mYuvFilterModeSpinner;
+    private Spinner mVideoProfileSpinner;
+    private TextView mVideoProfileText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +68,7 @@ public class RTCStreamingEntryActivity extends AppCompatActivity {
 
         mCheckBoxBeauty = (CheckBox) findViewById(R.id.CheckboxBeauty);
         mCheckBoxWatermark = (CheckBox) findViewById(R.id.CheckboxWatermark);
+        mCheckBoxQuic = (CheckBox) findViewById(R.id.CheckboxQuic);
         mCheckBoxDebugMode = (CheckBox) findViewById(R.id.CheckboxDebugMode);
         mCheckBoxCustomSetting = (CheckBox) findViewById(R.id.CheckboxCustomSetting);
         mCheckBoxAudioLevel = (CheckBox) findViewById(R.id.CheckboxAudioLevel);
@@ -72,6 +79,9 @@ public class RTCStreamingEntryActivity extends AppCompatActivity {
         mEncodingSizeRatioSpinner = (Spinner) findViewById(R.id.EncodingSizeRatioSpinner);
         mEncodingSizeLevelSpinner = (Spinner) findViewById(R.id.EncodingSizeLevelSpinner);
         mEncodingConfigSpinner = (Spinner) findViewById(R.id.EncodingConfig);
+        mVideoProfileSpinner = (Spinner) findViewById(R.id.VideoProfileSpinner);
+        mYuvFilterModeSpinner = (Spinner) findViewById(R.id.YuvFilterModeSpinner);
+        mVideoProfileText = (TextView) findViewById(R.id.VideoProfileText);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, StreamingSettings.PREVIEW_SIZE_RATIO_TIPS_ARRAY);
         mPreviewSizeRatioSpinner.setAdapter(adapter);
@@ -92,6 +102,27 @@ public class RTCStreamingEntryActivity extends AppCompatActivity {
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, StreamingSettings.ENCODING_TIPS_ARRAY);
         mEncodingConfigSpinner.setAdapter(adapter);
         mEncodingConfigSpinner.setSelection(0);
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, StreamingSettings.VIDEO_QUALITY_PROFILES);
+        mVideoProfileSpinner.setAdapter(adapter);
+        mVideoProfileSpinner.setSelection(0);
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, StreamingSettings.YUV_FILTER_MODE);
+        mYuvFilterModeSpinner.setAdapter(adapter);
+        mYuvFilterModeSpinner.setSelection(0);
+
+        mCheckBoxCustomSetting.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    mVideoProfileSpinner.setVisibility(View.VISIBLE);
+                    mVideoProfileText.setVisibility(View.VISIBLE);
+                } else {
+                    mVideoProfileSpinner.setVisibility(View.GONE);
+                    mVideoProfileText.setVisibility(View.GONE);
+                }
+            }
+        });
 
         mRoomEditText = (EditText) findViewById(R.id.RoomNameEditView);
         SharedPreferences preferences = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE);
@@ -159,6 +190,10 @@ public class RTCStreamingEntryActivity extends AppCompatActivity {
     }
 
     public void onClickAudience(View v) {
+        if (!QiniuAppServer.isNetworkAvailable(this)) {
+            Toast.makeText(RTCStreamingEntryActivity.this, "network is unavailable!!!", Toast.LENGTH_SHORT).show();
+            return;
+        }
         final String roomName = mRoomEditText.getText().toString();
         if ("".equals(roomName)) {
             showToastTips("请输入房间名称 !");
@@ -226,10 +261,13 @@ public class RTCStreamingEntryActivity extends AppCompatActivity {
         intent.putExtra("orientation", mRTCModeRadioGroup.getCheckedRadioButtonId() != R.id.RadioPortrait);
         intent.putExtra("beauty", mCheckBoxBeauty.isChecked());
         intent.putExtra("watermark", mCheckBoxWatermark.isChecked());
+        intent.putExtra("quic", mCheckBoxQuic.isChecked());
         intent.putExtra("debugMode", mCheckBoxDebugMode.isChecked());
         intent.putExtra("enableStats", mCheckboxEnableStats.isChecked());
         intent.putExtra("customSetting", mCheckBoxCustomSetting.isChecked());
         intent.putExtra("audioLevelCallback", mCheckBoxAudioLevel.isChecked());
+        intent.putExtra("videoProfile", mVideoProfileSpinner.getSelectedItemPosition());
+        intent.putExtra("yuvFilterMode", mYuvFilterModeSpinner.getSelectedItemPosition());
         intent.putExtra("bitrateControl",
                 mBitrateControlRadioGroup.getCheckedRadioButtonId() == R.id.bitrate_auto ? "auto"
                         : (mBitrateControlRadioGroup.getCheckedRadioButtonId() == R.id.bitrate_manual ? "manual" : "diable"));

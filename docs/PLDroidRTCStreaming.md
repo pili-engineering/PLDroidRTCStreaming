@@ -6,19 +6,36 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 
 ## 1.1 最新版内容提要
 
-**[Android] 连麦 SDK v2.0.0 发布**
+**[Android] 连麦 SDK v2.0.1 发布**
 
 PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互动 SDK，支持低延时音视频通话、RTMP 直播推流，可快速开发一对一视频聊天、多人视频会议、网红直播连麦、狼人杀、娃娃机等应用，接口简单易用，支持高度定制以及二次开发。
 
 **版本**
 
-- 发布 pldroid-rtc-streaming-2.0.0.jar
-- 发布 libpldroid_rtc_streaming.so
-- 发布 libpldroid_mmprocessing.so
-- 发布 libpldroid_streaming_aac_encoder.so
-- 发布 libpldroid_streaming_amix.so
-- 发布 libpldroid_streaming_h264_encoder.so
-- 发布 libpldroid_streaming_core.so
+- 发布了 pldroid-rtc-streaming-2.0.1.jar
+- 新增了 libpldroid_streaming_puic.so
+- 更新了 libpldroid_rtc_streaming.so
+- 更新了 libpldroid_mmprocessing.so
+- 更新了 libpldroid_streaming_core.so
+
+**功能**
+
+- 新增录制时动态水印功能
+- 新增 QUIC 推流功能
+- 新增房间号对 “-” 的支持
+
+**缺陷**
+
+- 修复金立 M7 黑屏问题
+- 修复纯音频推流 pause 后无法 resume 问题
+- 修复弱网下 pause 小概率 ANR 问题
+- 修复推流 NALU 长度溢出问题
+
+**更新注意事项**
+
+- 从 v2.0.1 版本开始，增加 libpldroid_streaming_puic.so 库
+- libpldroid_streaming_core.so 依赖于 libpldroid_streaming_puic.so，无论是否启用 QUIC 推流，都需要包含 libpldroid_streaming_puic.so 库
+- 构造函数中包含 AspectFrameLayout 参数的方法已被弃用，后续版本会删除，故不推荐使用
 
 ## 1.2 功能列表
 
@@ -161,6 +178,7 @@ SDK 主要包含 demo 代码、sdk jar 包，以及 sdk 依赖的动态库文件
 |   libpldroid_mmprocessing.so              |   图像处理   |   559KB   |   含推流场景必须依赖，不含推流场景如无需使用内置美颜可以去掉|
 |   libpldroid_rtc_streaming.so             |   连麦      |   5.8MB   |   不使用连麦可以去掉                                 |
 |   libpldroid_streaming_core.so            |   推流      |   83KB    |   不使用推流可以去掉                                 |
+|   libpldroid_streaming_puic.so            |   推流      |   1.7MB   |   不使用推流可以去掉，否则必须依赖                      |
 |   libpldroid_streaming_amix.so            |   混音      |   210KB   |   不使用混音可以去掉                                 |
 |   libpldroid_streaming_aac_encoder.so     |   AAC 软编  |   116KB   |   不使用 AAC 软编可去掉                              |
 |   libpldroid_streaming_h264_encoder.so    |   H264 软编 |   850KB   |   不使用 H264 软编可以去掉                           |
@@ -226,16 +244,11 @@ RTCMediaStreamingManager.init(getApplicationContext(), RTCServerRegion.RTC_CN_SE
 在 XML 文件中，配置本地 Camera 预览的视图布局，如下所示：
 
 ```xml
-<com.qiniu.pili.droid.streaming.widget.AspectFrameLayout
-    android:id="@+id/AspectLayout"
+<com.qiniu.pili.droid.rtcstreaming.demo.ui.CameraPreviewFrameView
+    android:id="@+id/LocalPreivew"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-    <android.opengl.GLSurfaceView
-        android:id="@+id/LocalPreivew"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center" />
-</com.qiniu.pili.droid.streaming.widget.AspectFrameLayout>
+    android:layout_height="match_parent"
+    android:layout_gravity="center" />
 ```
 
 ### 5.5.3 XML 文件中添加远端画面显示窗口
@@ -265,11 +278,8 @@ RTCMediaStreamingManager.init(getApplicationContext(), RTCServerRegion.RTC_CN_SE
 本操作推荐在 `Activity.onCreate()` 函数中完成。
 
 ```java
-AspectFrameLayout afl = (AspectFrameLayout) findViewById(R.id.AspectLayout);
-afl.setShowMode(AspectFrameLayout.SHOW_MODE.FULL);
-
-GLSurfaceView localCameraView = (GLSurfaceView) findViewById(R.id.LocalPreivew);
-mMediaStreamingManager = new RTCMediaStreamingManager(getApplicationContext(), afl, localCameraView, AVCodecType.SW_VIDEO_WITH_SW_AUDIO_CODEC);
+CameraPreviewFrameView localCameraView = (CameraPreviewFrameView) findViewById(R.id.LocalPreivew);
+mMediaStreamingManager = new RTCMediaStreamingManager(getApplicationContext(), localCameraView, AVCodecType.SW_VIDEO_WITH_SW_AUDIO_CODEC);
 ```
 
 ### 5.5.5 创建本地 Camera 的配置
@@ -348,7 +358,9 @@ mStreamingProfile.setVideoQuality(StreamingProfile.VIDEO_QUALITY_MEDIUM2)
     .setAudioQuality(StreamingProfile.AUDIO_QUALITY_MEDIUM1)
     .setEncoderRCMode(StreamingProfile.EncoderRCModes.QUALITY_PRIORITY)
     .setEncodingOrientation(StreamingProfile.ENCODING_ORIENTATION.PORT)
-    .setPreferredVideoEncodingSize(options.getVideoEncodingWidth(), options.getVideoEncodingHeight()); // 配置推流的尺寸，建议与连麦尺寸一致
+    .setQuicEnable(isQuicEnable)
+    .setPreferredVideoEncodingSize(options.getVideoEncodingWidth(), options.getVideoEncodingHeight()) // 配置推流的尺寸，建议与连麦尺寸一致
+    .setYuvFilterMode(StreamingProfile.YuvFilterMode.None);  // 当图像采集尺寸与推流尺寸不一致时，SDK 会对采集图像进行 resize 操作，通过 FilterMode 参数，可以对 resize 算法进行设置。
 
 // 配置水印参数
 WatermarkSetting watermarksetting = new WatermarkSetting(this);
@@ -560,6 +572,7 @@ public RTCMediaStreamingManager(Context ctx, GLSurfaceView localView, AVCodecTyp
   * @param layout SDK 提供的用于尺寸变换的视图类
   * @param localView 本地 Camera 预览窗口
   */
+@Deprecated
 public RTCMediaStreamingManager(Context ctx, AspectFrameLayout layout, GLSurfaceView localView);
 
  /**
@@ -571,6 +584,7 @@ public RTCMediaStreamingManager(Context ctx, AspectFrameLayout layout, GLSurface
   * @param localView 本地 Camera 预览窗口
   * @param encodingType 可选参数：HW_VIDEO_WITH_HW_AUDIO_CODEC 或者 SW_VIDEO_WITH_SW_AUDIO_CODEC
   */
+@Deprecated
 public RTCMediaStreamingManager(Context ctx, AspectFrameLayout layout, GLSurfaceView localView, AVCodecType encodingType);
 
  /**
@@ -809,9 +823,9 @@ public enum RTCAudioSource {
 /**
  * 根据 userId 踢人
  * 被踢的用户会收到 "USER_KICKOUT_BY_HOST" 的消息回调
- * 
+ *
  * @param userId 被踢的用户ID
- * 
+ *
  * @return 本方法的调用结果
  */
 public boolean kickoutUser(String userId);
@@ -823,7 +837,7 @@ public boolean kickoutUser(String userId);
  * 被踢的用户会收到 "USER_KICKOUT_BY_HOST" 的消息回调
  *
  * @param glSurfaceViewId 显示被踢用户的窗口ID
- * 
+ *
  * @return 本方法的调用结果
  */
 public boolean kickoutUser(int glSurfaceViewId);
@@ -1031,6 +1045,17 @@ public boolean startPlayback();
  * 关闭返听功能
  */
 public void stopPlayback()
+```
+
+### 6.2.29 动态水印
+
+```java
+/**
+ * 更新水印的配置（内容、位置、大小等）
+ *
+ * @param watermarkSetting 新的水印配置
+ */
+public void updateWatermarkSetting(WatermarkSetting watermarkSetting);
 ```
 
 <a id="6.3"></a>
@@ -1262,7 +1287,7 @@ public boolean kickoutUser(String userId);
  * 被踢的用户会收到 "USER_KICKOUT_BY_HOST" 的消息回调
  *
  * @param glSurfaceViewId 显示被踢用户的窗口ID
- * 
+ *
  * @return 本方法的调用结果
  */
 public boolean kickoutUser(int glSurfaceViewId);
@@ -1318,7 +1343,7 @@ public void setDebugLoggingEnabled(boolean enabled);
  * @param mirror 是否镜像
  * @param fmt 视频格式，只支持：PLFourCC.FOURCC_NV21，PLFourCC.FOURCC_I420
  * @param ts 视频帧的时间戳，单位：ns
- * 
+ *
  * @return 本方法的调用结果
  */
 public boolean inputVideoFrame(byte[] data, int width, int height, int rotation, boolean mirror, int fmt, long ts) 
@@ -1463,6 +1488,14 @@ public static void deinit();
 public RTCConferenceManager(Context ctx);
 /**
   * 构造 RTCConferenceManager 对象
+  * 用于纯音频连麦
+  *
+  * @param ctx Android 的上下文句柄
+  * @param encodingType 编码方式
+  */
+public RTCConferenceManager(Context ctx, AVCodecType encodingType)
+/**
+  * 构造 RTCConferenceManager 对象
   * 用于音频+视频连麦，默认采用软编推流
   *
   * @param ctx Android 的上下文句柄
@@ -1471,12 +1504,22 @@ public RTCConferenceManager(Context ctx);
 public RTCConferenceManager(Context ctx, GLSurfaceView localView);
 /**
   * 构造 RTCConferenceManager 对象
+  * 用于音频+视频连麦
+  *
+  * @param ctx Android 的上下文句柄
+  * @param localView 本地 Camera 预览窗口
+  * @param encodingType 编码方式
+  */
+public RTCConferenceManager(Context ctx, GLSurfaceView localView, AVCodecType encodingType);
+/**
+  * 构造 RTCConferenceManager 对象
   * 用于音频+视频连麦，默认采用软编推流
   *
   * @param ctx Android 的上下文句柄
   * @param layout SDK 提供的用于尺寸变换的视图类
   * @param localView 本地 Camera 预览窗口
   */
+@Deprecated
 public RTCConferenceManager(Context ctx, AspectFrameLayout layout, GLSurfaceView localView);
 /**
   * 构造 RTCConferenceManager 对象
@@ -1487,6 +1530,7 @@ public RTCConferenceManager(Context ctx, AspectFrameLayout layout, GLSurfaceView
   * @param localView 本地 Camera 预览窗口
   * @param encodingType 编码方式
   */
+@Deprecated
 public RTCConferenceManager(Context ctx, AspectFrameLayout layout, GLSurfaceView localView, AVCodecType encodingType);
 ```
 
@@ -2365,7 +2409,28 @@ void onRemoteAudioPublished(String userId);
 void onRemoteAudioUnpublished(String userId);
 ```
 
-#### 6.5.13 RTCServerRegion
+### 6.5.13 AudioSourceCallback
+
+用户可以通过 `AudioSourceCallback` 回调接口，获取当前音频数据，实现自定义音频数据处理。
+
+```java
+// 注册音频采集数据回调
+xxxStreamingManager.setAudioSourceCallback(AudioSourceCallback callback)；
+
+public interface AudioSourceCallback {
+  /**
+   * 回调音频采集 PCM 数据
+   *
+   * @param srcBuffer     音频 PCM数据，该 buffer 是 direct ByteBuffer。
+   * @param size          buffer的大小
+   * @param tsInNanoTime  时间戳，单位：纳秒
+   * @param isEof         采集结束标志
+   */
+  void onAudioSourceAvailable(ByteBuffer srcBuffer, int size, long tsInNanoTime, boolean isEof);
+}
+```
+
+#### 6.5.14 RTCServerRegion
 
 `RTCServerRegion` 用于设置首选连接服务器的区域码，具体内容如下：
 
@@ -2587,6 +2652,19 @@ public interface SurfaceTextureCallback {
 <a id="9"></a>
 
 # 9. 历史记录
+
+- **2.0.1**
+  - 发布了 pldroid-rtc-streaming-2.0.1.jar
+  - 新增了 libpldroid_streaming_puic.so
+  - 更新了 libpldroid_rtc_streaming.so
+  - 更新了 libpldroid_mmprocessing.so
+  - 更新了 libpldroid_streaming_core.so
+  - 新增录制时动态水印功能
+  - 新增 QUIC 推流功能，可在 StreamingProfile 中配置开启
+  - 修复金立 M7 黑屏问题
+  - 修复纯音频推流 pause 后无法 resume 问题
+  - 修复弱网下 pause 小概率 ANR 问题
+  - 修复推流 NALU 长度溢出问题
 
 - **2.0.0**
   - 发布 pldroid-rtc-streaming-2.0.0.jar

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.qiniu.pili.droid.rtcstreaming.demo.ui.FocusIndicatorRotateLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/focus_indicator_rotate_layout"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:layout_centerInParent="true">
+    <View android:id="@+id/focus_indicator"
+        android:layout_height="80dp"
+        android:layout_width="80dp"/>
+</com.qiniu.pili.droid.rtcstreaming.demo.ui.FocusIndicatorRotateLayout>

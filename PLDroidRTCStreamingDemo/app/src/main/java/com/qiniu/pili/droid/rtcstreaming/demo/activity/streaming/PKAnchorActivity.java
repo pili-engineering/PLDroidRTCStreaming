@@ -261,6 +261,10 @@ public class PKAnchorActivity extends AppCompatActivity {
     }
 
     private boolean startConference() {
+        if (!QiniuAppServer.isNetworkAvailable(this)) {
+            Toast.makeText(PKAnchorActivity.this, "network is unavailable!!!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         if (mIsConferenceStarted) {
             return true;
         }
@@ -321,6 +325,10 @@ public class PKAnchorActivity extends AppCompatActivity {
     }
 
     private boolean startPublishStreaming() {
+        if (!QiniuAppServer.isNetworkAvailable(this)) {
+            Toast.makeText(PKAnchorActivity.this, "network is unavailable!!!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         if (mIsPublishStreamStarted) {
             return true;
         }

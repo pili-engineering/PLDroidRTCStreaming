@@ -58,6 +58,9 @@ public class QiniuAppServer implements AppServerBase {
         String url = APP_SERVER_ADDR + "/pili/v1/login";
         String requestBody = "{\"name\":\"" + userName + "\",\"password\":\"" + password + "\"}";
         String response = doPostRequest(url, requestBody, null);
+        if (response == null) {
+            return false;
+        }
         try {
             JSONObject json = new JSONObject(response);
             return "200".equals(json.getString("code"));
@@ -78,6 +81,9 @@ public class QiniuAppServer implements AppServerBase {
     public String requestPublishAddress(String roomName) {
         String url = APP_SERVER_ADDR + "/pili/v1/stream/" + roomName;
         String response = doPostRequest(url, null, mAuthorization);
+        if (response == null) {
+            return null;
+        }
         try {
             JSONObject json = new JSONObject(response);
             return json.getString("url");
@@ -106,6 +112,9 @@ public class QiniuAppServer implements AppServerBase {
 
         try {
             Response response = client.newCall(request).execute();
+            if (response == null) {
+                return null;
+            }
             JSONObject jsonObject = new JSONObject(response.body().string());
             if ("200".equals(jsonObject.getString("code"))) {
                 return jsonObject.getString("rtmp");

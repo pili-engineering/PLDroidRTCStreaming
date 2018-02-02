@@ -242,6 +242,13 @@
                 android:layout_margin="3dp" />
 
             <CheckBox
+                android:id="@+id/CheckboxQuic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="QUIC"
+                android:layout_margin="3dp" />
+
+            <CheckBox
                 android:id="@+id/CheckboxDebugMode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -278,6 +285,35 @@
                 android:text="数据统计" />
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/VideoProfileText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:text="H.264 Profile 设置:"
+            android:visibility="gone"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/VideoProfileSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_marginLeft="10dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:text="YuvFilterMode 设置:"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/YuvFilterModeSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp" />
 
         <TextView
             android:layout_width="match_parent"

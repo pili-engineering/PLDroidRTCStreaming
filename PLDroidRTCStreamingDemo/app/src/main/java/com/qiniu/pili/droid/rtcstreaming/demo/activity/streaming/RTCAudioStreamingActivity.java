@@ -161,6 +161,10 @@ public class RTCAudioStreamingActivity extends AppCompatActivity {
     }
 
     private boolean startConference() {
+        if (!QiniuAppServer.isNetworkAvailable(this)) {
+            Toast.makeText(RTCAudioStreamingActivity.this, "network is unavailable!!!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         if (mIsConferenceStarted) {
             return true;
         }
@@ -221,6 +225,10 @@ public class RTCAudioStreamingActivity extends AppCompatActivity {
     }
 
     private boolean startPublishStreaming() {
+        if (!QiniuAppServer.isNetworkAvailable(this)) {
+            Toast.makeText(RTCAudioStreamingActivity.this, "network is unavailable!!!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         if (mIsPublishStreamStarted) {
             return true;
         }

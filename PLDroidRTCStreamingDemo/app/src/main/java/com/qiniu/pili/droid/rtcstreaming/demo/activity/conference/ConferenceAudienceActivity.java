@@ -83,6 +83,10 @@ public class ConferenceAudienceActivity extends Activity {
     }
 
     private boolean startConference() {
+        if (!QiniuAppServer.isNetworkAvailable(this)) {
+            Toast.makeText(ConferenceAudienceActivity.this, "network is unavailable!!!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         if (mRTCConferenceManager.isConferenceStarted()) {
             return true;
         }
