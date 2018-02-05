@@ -44,6 +44,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onClickLogin(View v) {
+        if (!QiniuAppServer.isNetworkAvailable(this)) {
+            Toast.makeText(LoginActivity.this, "network is unavailable!!!", Toast.LENGTH_SHORT).show();
+            return;
+        }
         mUserName = mUserNameText.getText().toString().trim();
         mPassword = mPasswordText.getText().toString().trim();
         new Thread(new Runnable() {

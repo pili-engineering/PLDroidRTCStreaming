@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.hardware.Camera;
 import android.media.MediaRecorder;
 import android.net.Uri;
-import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -16,6 +15,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -43,6 +43,9 @@ import com.qiniu.pili.droid.rtcstreaming.RTCUserEventListener;
 import com.qiniu.pili.droid.rtcstreaming.RTCVideoWindow;
 import com.qiniu.pili.droid.rtcstreaming.demo.R;
 import com.qiniu.pili.droid.rtcstreaming.demo.core.QiniuAppServer;
+import com.qiniu.pili.droid.rtcstreaming.demo.ui.CameraPreviewFrameView;
+import com.qiniu.pili.droid.rtcstreaming.demo.ui.RotateLayout;
+import com.qiniu.pili.droid.rtcstreaming.demo.utils.StreamingSettings;
 import com.qiniu.pili.droid.streaming.AVCodecType;
 import com.qiniu.pili.droid.streaming.CameraStreamingSetting;
 import com.qiniu.pili.droid.streaming.MicrophoneStreamingSetting;
@@ -52,7 +55,6 @@ import com.qiniu.pili.droid.streaming.StreamingSessionListener;
 import com.qiniu.pili.droid.streaming.StreamingState;
 import com.qiniu.pili.droid.streaming.StreamingStateChangedListener;
 import com.qiniu.pili.droid.streaming.WatermarkSetting;
-import com.qiniu.pili.droid.streaming.widget.AspectFrameLayout;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -101,7 +103,10 @@ public class RTCStreamingActivity extends AppCompatActivity {
     private boolean mIsInReadyState = false;
     private int mCurrentCamFacingIndex;
 
-    private GLSurfaceView mCameraPreviewFrameView;
+    private CameraPreviewFrameView mCameraPreviewFrameView;
+    private RotateLayout mRotateLayout;
+    private int mCurrentZoom = 0;
+    private int mMaxZoom = 0;
     private RTCVideoWindow mRTCVideoWindowA;
     private RTCVideoWindow mRTCVideoWindowB;
 
@@ -113,14 +118,16 @@ public class RTCStreamingActivity extends AppCompatActivity {
     private boolean mIsSpeakerMuted = false;
     private boolean mIsAudioLevelCallbackEnabled = false;
     private boolean mIsPictureStreaming = false;
+    private boolean mIsPreviewOnTop = false;
+    private boolean mIsWindowAOnBottom = false;
 
     private String mRemoteUserId;
     private String mBitrateControl;
 
     private boolean mIsPlayingBack = false;
 
-    private int mEncodingFps = 15;
-    private int mEncodingBitrate = 800 * 1024;
+    private int mEncodingFps = 20;
+    private int mEncodingBitrate = 1000 * 1024;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,9 +138,8 @@ public class RTCStreamingActivity extends AppCompatActivity {
         /**
          * Step 1: find & init views
          */
-        AspectFrameLayout afl = (AspectFrameLayout) findViewById(R.id.cameraPreview_afl);
-        afl.setShowMode(AspectFrameLayout.SHOW_MODE.FULL);
-        mCameraPreviewFrameView = (GLSurfaceView) findViewById(R.id.cameraPreview_surfaceView);
+        mCameraPreviewFrameView = (CameraPreviewFrameView) findViewById(R.id.cameraPreview_surfaceView);
+        mCameraPreviewFrameView.setListener(mCameraPreviewListener);
 
         mRole = getIntent().getIntExtra("role", QiniuAppServer.RTC_ROLE_VICE_ANCHOR);
         mRoomName = getIntent().getStringExtra("roomName");
@@ -143,6 +149,7 @@ public class RTCStreamingActivity extends AppCompatActivity {
 
         boolean isBeautyEnabled = getIntent().getBooleanExtra("beauty", false);
         boolean isWaterMarkEnabled = getIntent().getBooleanExtra("watermark", false);
+        boolean isQuicEnable = getIntent().getBooleanExtra("quic", false);
         boolean isDebugModeEnabled = getIntent().getBooleanExtra("debugMode", false);
         boolean isCustomSettingEnabled = getIntent().getBooleanExtra("customSetting", false);
         boolean isStatsEnabled = getIntent().getBooleanExtra("enableStats", false);
@@ -203,7 +210,7 @@ public class RTCStreamingActivity extends AppCompatActivity {
          * Step 3: create streaming manager and set listeners
          */
         AVCodecType codecType = isSwCodec ? AVCodecType.SW_VIDEO_WITH_SW_AUDIO_CODEC : AVCodecType.HW_VIDEO_YUV_AS_INPUT_WITH_HW_AUDIO_CODEC;
-        mRTCStreamingManager = new RTCMediaStreamingManager(getApplicationContext(), afl, mCameraPreviewFrameView, codecType);
+        mRTCStreamingManager = new RTCMediaStreamingManager(getApplicationContext(), mCameraPreviewFrameView, codecType);
         mRTCStreamingManager.setConferenceStateListener(mRTCStreamingStateChangedListener);
         mRTCStreamingManager.setRemoteWindowEventListener(mRTCRemoteWindowEventListener);
         mRTCStreamingManager.setUserEventListener(mRTCUserEventListener);
@@ -308,6 +315,8 @@ public class RTCStreamingActivity extends AppCompatActivity {
                     .setAudioQuality(StreamingProfile.AUDIO_QUALITY_MEDIUM1)
                     .setEncoderRCMode(StreamingProfile.EncoderRCModes.BITRATE_PRIORITY)
                     .setFpsControllerEnable(true)
+                    .setQuicEnable(isQuicEnable)
+                    .setYuvFilterMode(StreamingSettings.YUV_FILTER_MODE_MAPPING[getIntent().getIntExtra("yuvFilterMode", 0)])
                     .setPictureStreamingResourceId(R.drawable.pause_publish)
                     .setSendingBufferProfile(new StreamingProfile.SendingBufferProfile(0.2f, 0.8f, 3.0f, 20 * 1000))
                     .setBitrateAdjustMode(
@@ -318,7 +327,7 @@ public class RTCStreamingActivity extends AppCompatActivity {
             //Set AVProfile Manually, which will cover `setXXXQuality`
             if (isCustomSettingEnabled) {
                 StreamingProfile.AudioProfile aProfile = new StreamingProfile.AudioProfile(44100, 96 * 1024);
-                StreamingProfile.VideoProfile vProfile = new StreamingProfile.VideoProfile(mEncodingFps, mEncodingBitrate, 15 * 2);
+                StreamingProfile.VideoProfile vProfile = new StreamingProfile.VideoProfile(mEncodingFps, mEncodingBitrate, mEncodingFps * 3, StreamingSettings.VIDEO_QUALITY_PROFILES_MAPPING[getIntent().getIntExtra("videoProfile", 0)]);
                 StreamingProfile.AVProfile avProfile = new StreamingProfile.AVProfile(vProfile, aProfile);
                 mStreamingProfile.setAVProfile(avProfile);
             }
@@ -367,6 +376,7 @@ public class RTCStreamingActivity extends AppCompatActivity {
          * Step 10: You must stop capture, stop conference, stop streaming when activity paused
          */
         mRTCStreamingManager.stopCapture();
+        mIsInReadyState = false;
         stopConference();
         stopPublishStreaming();
     }
@@ -519,20 +529,18 @@ public class RTCStreamingActivity extends AppCompatActivity {
     }
 
     public void onClickRemoteWindowA(View v) {
-        FrameLayout window = (FrameLayout) v;
-        if (window.getChildAt(0).getId() == mCameraPreviewFrameView.getId()) {
-            mRTCStreamingManager.switchRenderView(mCameraPreviewFrameView, mRTCVideoWindowA.getRTCSurfaceView());
-        } else {
+        if (!mIsPreviewOnTop) {
             mRTCStreamingManager.switchRenderView(mRTCVideoWindowA.getRTCSurfaceView(), mCameraPreviewFrameView);
+            mIsPreviewOnTop = true;
+            mIsWindowAOnBottom = true;
         }
     }
 
     public void onClickRemoteWindowB(View v) {
-        FrameLayout window = (FrameLayout) v;
-        if (window.getChildAt(0).getId() == mCameraPreviewFrameView.getId()) {
-            mRTCStreamingManager.switchRenderView(mCameraPreviewFrameView, mRTCVideoWindowB.getRTCSurfaceView());
-        } else {
+        if (!mIsPreviewOnTop) {
             mRTCStreamingManager.switchRenderView(mRTCVideoWindowB.getRTCSurfaceView(), mCameraPreviewFrameView);
+            mIsPreviewOnTop = true;
+            mIsWindowAOnBottom = false;
         }
     }
 
@@ -594,6 +602,10 @@ public class RTCStreamingActivity extends AppCompatActivity {
     }
 
     private boolean startConference() {
+        if (!QiniuAppServer.isNetworkAvailable(this)) {
+            Toast.makeText(RTCStreamingActivity.this, "network is unavailable!!!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         if (mIsConferenceStarted) {
             return true;
         }
@@ -657,6 +669,10 @@ public class RTCStreamingActivity extends AppCompatActivity {
     }
 
     private boolean startPublishStreaming() {
+        if (!QiniuAppServer.isNetworkAvailable(this)) {
+            Toast.makeText(RTCStreamingActivity.this, "network is unavailable!!!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         if (mIsPublishStreamStarted) {
             return true;
         }
@@ -733,6 +749,7 @@ public class RTCStreamingActivity extends AppCompatActivity {
                     break;
                 case READY:
                     mIsInReadyState = true;
+                    mMaxZoom = mRTCStreamingManager.getMaxZoom();
                     setStatusText(getString(R.string.ready));
                     Log.d(TAG, "onStateChanged state:" + "ready");
                     break;
@@ -857,6 +874,8 @@ public class RTCStreamingActivity extends AppCompatActivity {
             switch (state) {
                 case READY:
                     // You must `StartConference` after `Ready`
+                    mIsInReadyState = true;
+                    mMaxZoom = mRTCStreamingManager.getMaxZoom();
                     showToast(getString(R.string.ready), Toast.LENGTH_SHORT);
                     break;
                 case RECONNECTING:
@@ -941,6 +960,46 @@ public class RTCStreamingActivity extends AppCompatActivity {
             Log.d(TAG, "onAudioLevelChanged: userId = " + userId + " level = " + level);
         }
     };
+
+    private CameraPreviewFrameView.Listener mCameraPreviewListener = new CameraPreviewFrameView.Listener() {
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            if (mIsPreviewOnTop) {
+                RTCVideoWindow window = mIsWindowAOnBottom ? mRTCVideoWindowA : mRTCVideoWindowB;
+                mRTCStreamingManager.switchRenderView(mCameraPreviewFrameView, window.getRTCSurfaceView());
+                mIsPreviewOnTop = false;
+                mIsWindowAOnBottom = false;
+                return true;
+            }
+            Log.i(TAG, "onSingleTapUp X:" + e.getX() + ",Y:" + e.getY());
+            if (mIsInReadyState) {
+                setFocusAreaIndicator();
+                mRTCStreamingManager.doSingleTapUp((int) e.getX(), (int) e.getY());
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onZoomValueChanged(float factor) {
+            if (mIsInReadyState && mRTCStreamingManager.isZoomSupported() && !mIsPreviewOnTop) {
+                mCurrentZoom = (int) (mMaxZoom * factor);
+                mCurrentZoom = Math.min(mCurrentZoom, mMaxZoom);
+                mCurrentZoom = Math.max(0, mCurrentZoom);
+                Log.d(TAG, "zoom ongoing, scale: " + mCurrentZoom + ",factor:" + factor + ",maxZoom:" + mMaxZoom);
+                mRTCStreamingManager.setZoomValue(mCurrentZoom);
+            }
+            return false;
+        }
+    };
+
+    protected void setFocusAreaIndicator() {
+        if (mRotateLayout == null) {
+            mRotateLayout = (RotateLayout) findViewById(R.id.focus_indicator_rotate_layout);
+            mRTCStreamingManager.setFocusAreaIndicator(mRotateLayout,
+                    mRotateLayout.findViewById(R.id.focus_indicator));
+        }
+    }
 
     private View.OnClickListener mMuteButtonClickListener = new View.OnClickListener() {
         @Override

@@ -192,6 +192,10 @@ public class PKViceAnchorActivity extends AppCompatActivity {
     }
 
     private boolean startConference() {
+        if (!QiniuAppServer.isNetworkAvailable(this)) {
+            Toast.makeText(PKViceAnchorActivity.this, "network is unavailable!!!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         if (mIsConferenceStarted) {
             return true;
         }
