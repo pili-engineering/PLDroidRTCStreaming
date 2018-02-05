@@ -965,11 +965,8 @@ public class RTCStreamingActivity extends AppCompatActivity {
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             if (mIsPreviewOnTop) {
-                if (mIsWindowAOnBottom) {
-                    mRTCStreamingManager.switchRenderView(mCameraPreviewFrameView, mRTCVideoWindowA.getRTCSurfaceView());
-                } else {
-                    mRTCStreamingManager.switchRenderView(mCameraPreviewFrameView, mRTCVideoWindowB.getRTCSurfaceView());
-                }
+                RTCVideoWindow window = mIsWindowAOnBottom ? mRTCVideoWindowA : mRTCVideoWindowB;
+                mRTCStreamingManager.switchRenderView(mCameraPreviewFrameView, window.getRTCSurfaceView());
                 mIsPreviewOnTop = false;
                 mIsWindowAOnBottom = false;
                 return true;

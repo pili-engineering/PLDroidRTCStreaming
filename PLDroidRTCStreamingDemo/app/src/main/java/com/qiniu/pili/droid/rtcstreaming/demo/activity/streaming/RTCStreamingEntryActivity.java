@@ -114,13 +114,8 @@ public class RTCStreamingEntryActivity extends AppCompatActivity {
         mCheckBoxCustomSetting.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    mVideoProfileSpinner.setVisibility(View.VISIBLE);
-                    mVideoProfileText.setVisibility(View.VISIBLE);
-                } else {
-                    mVideoProfileSpinner.setVisibility(View.GONE);
-                    mVideoProfileText.setVisibility(View.GONE);
-                }
+                mVideoProfileSpinner.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                mVideoProfileText.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             }
         });
 
