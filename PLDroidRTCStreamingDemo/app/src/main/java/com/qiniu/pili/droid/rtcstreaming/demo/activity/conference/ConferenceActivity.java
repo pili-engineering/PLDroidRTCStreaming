@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
-import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,7 +14,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
@@ -39,7 +37,6 @@ import com.qiniu.pili.droid.rtcstreaming.demo.ui.CameraPreviewFrameView;
 import com.qiniu.pili.droid.rtcstreaming.demo.ui.RotateLayout;
 import com.qiniu.pili.droid.streaming.AVCodecType;
 import com.qiniu.pili.droid.streaming.CameraStreamingSetting;
-import com.qiniu.pili.droid.streaming.MicrophoneStreamingSetting;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -139,9 +136,6 @@ public class ConferenceActivity extends AppCompatActivity {
                 .setCameraPrvSizeLevel(CameraStreamingSetting.PREVIEW_SIZE_LEVEL.MEDIUM)
                 .setCameraPrvSizeRatio(CameraStreamingSetting.PREVIEW_SIZE_RATIO.RATIO_16_9);
 
-        MicrophoneStreamingSetting microphoneStreamingSetting = new MicrophoneStreamingSetting();
-        microphoneStreamingSetting.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
-
         if (isBeautyEnabled) {
             cameraStreamingSetting.setBuiltInFaceBeautyEnabled(true); // Using sdk built in face beauty algorithm
             cameraStreamingSetting.setFaceBeautySetting(new CameraStreamingSetting.FaceBeautySetting(0.8f, 0.8f, 0.6f)); // sdk built in face beauty settings
@@ -196,7 +190,7 @@ public class ConferenceActivity extends AppCompatActivity {
         /**
          * Step 7: do prepare
          */
-        mRTCConferenceManager.prepare(cameraStreamingSetting, microphoneStreamingSetting);
+        mRTCConferenceManager.prepare(cameraStreamingSetting, null);
 
         mProgressDialog = new ProgressDialog(this);
     }

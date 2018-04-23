@@ -3,7 +3,6 @@ package com.qiniu.pili.droid.rtcstreaming.demo.activity.streaming;
 import android.app.ProgressDialog;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
-import android.media.MediaRecorder;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Looper;
@@ -28,7 +27,6 @@ import com.qiniu.pili.droid.rtcstreaming.demo.R;
 import com.qiniu.pili.droid.rtcstreaming.demo.core.QiniuAppServer;
 import com.qiniu.pili.droid.streaming.AVCodecType;
 import com.qiniu.pili.droid.streaming.CameraStreamingSetting;
-import com.qiniu.pili.droid.streaming.MicrophoneStreamingSetting;
 import com.qiniu.pili.droid.streaming.StreamingSessionListener;
 
 import java.util.List;
@@ -98,9 +96,6 @@ public class PKViceAnchorActivity extends AppCompatActivity {
             cameraStreamingSetting.setVideoFilter(CameraStreamingSetting.VIDEO_FILTER_TYPE.VIDEO_FILTER_BEAUTY); // set the beauty on/off
         }
 
-        MicrophoneStreamingSetting microphoneStreamingSetting = new MicrophoneStreamingSetting();
-        microphoneStreamingSetting.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
-
         /**
          * Step 3: create streaming manager and set listeners
          */
@@ -137,7 +132,7 @@ public class PKViceAnchorActivity extends AppCompatActivity {
         /**
          * Step 7: do prepare
          */
-        mRTCStreamingManager.prepare(cameraStreamingSetting, microphoneStreamingSetting, null, null);
+        mRTCStreamingManager.prepare(cameraStreamingSetting, null, null, null);
 
         mProgressDialog = new ProgressDialog(this);
     }

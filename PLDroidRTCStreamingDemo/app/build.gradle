@@ -9,7 +9,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 26
         versionCode 1
-        versionName "2.0.1"
+        versionName "2.0.2"
         multiDexEnabled true
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
     }
@@ -22,10 +22,10 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:26.0.1'
+    compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.qiniu:happy-dns:0.2.8'
     compile files('libs/pldroid-player-1.5.1.jar')
-    compile files('libs/pldroid-rtc-streaming-2.0.1.jar')
+    compile files('libs/pldroid-rtc-streaming-2.0.2.jar')
     compile 'com.android.support:multidex:1.0.1'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
@@ -34,5 +34,5 @@ dependencies {
     compile 'com.robbypond:material-dialogs:1.0.0'
     compile 'com.github.angads25:filepicker:1.0.6'
     compile 'com.squareup.okhttp3:okhttp:3.9.1'
-    compile 'com.android.support:design:26.0.1'
+    compile 'com.android.support:design:26.1.0'
 }

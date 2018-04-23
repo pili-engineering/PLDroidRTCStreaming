@@ -6,30 +6,30 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 
 ## 1.1 最新版内容提要
 
-**[Android] 连麦 SDK v2.0.1 发布**
+**[Android] 连麦 SDK v2.0.2 发布**
 
 PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互动 SDK，支持低延时音视频通话、RTMP 直播推流，可快速开发一对一视频聊天、多人视频会议、网红直播连麦、狼人杀、娃娃机等应用，接口简单易用，支持高度定制以及二次开发。
 
 **版本**
 
-- 发布了 pldroid-rtc-streaming-2.0.1.jar
-- 新增了 libpldroid_streaming_puic.so
+- 发布了 pldroid-rtc-streaming-2.0.2.jar
 - 更新了 libpldroid_rtc_streaming.so
 - 更新了 libpldroid_mmprocessing.so
-- 更新了 libpldroid_streaming_core.so
 
 **功能**
 
-- 新增录制时动态水印功能
-- 新增 QUIC 推流功能
-- 新增房间号对 “-” 的支持
+- 新增手动配置曝光度的接口
 
 **缺陷**
 
-- 修复金立 M7 黑屏问题
-- 修复纯音频推流 pause 后无法 resume 问题
-- 修复弱网下 pause 小概率 ANR 问题
-- 修复推流 NALU 长度溢出问题
+- 修复直播过程中退后台，再回到前台，无法继续推流的问题
+- 修复个别机型使用蓝牙连麦断开再连接会外放的问题
+- 修复连麦者被踢之后调用 stopConference 无效的问题
+- 修复连麦下使用 StreamingProfile 内置分辨率配置推流编码分辨率花屏的问题
+
+**优化**
+
+- 优化镜像逻辑
 
 **更新注意事项**
 
@@ -934,6 +934,14 @@ public boolean setPreviewMirror(boolean mirror);
 public boolean setEncodingMirror(boolean mirror);
 ```
 
+**当前的镜像逻辑如下：**
+
+在初始化和切换摄像头的场景下镜像状态会重置，前置会重置到 CameraStreamingSetting 里配置的镜像状态，后置预览和编码默认都是非镜像状态（EncodingMirror = false）
+
+**初始化时镜像的现象描述：**
+
+在默认预览和编码都是非镜像或镜像的场景下，预览和观众端看到的画面方向是一致的，否则是相反的
+
 ### 6.2.23 设置房间内音频流的音量回调
 
 ```java
@@ -1041,6 +1049,7 @@ public boolean togglePictureStreaming();
  * @return 开启成功与否
  */
 public boolean startPlayback();
+
 /**
  * 关闭返听功能
  */
@@ -1056,6 +1065,33 @@ public void stopPlayback()
  * @param watermarkSetting 新的水印配置
  */
 public void updateWatermarkSetting(WatermarkSetting watermarkSetting);
+```
+
+### 6.2.30 调整曝光率
+
+```java
+/**
+ * 设置曝光率的大小
+ *
+ * 设备支持的曝光率可以通过 getMinExposureCompensation() 和 getMaxExposureCompensation() 获取，如果两者返回值都是 0，则不支持曝光率的调整
+ *
+ * @param value 曝光值
+ */
+public void setExposureCompensation(int value)
+
+/**
+ * 获取设备支持的最小曝光率
+ *
+ * @return 最小曝光率
+ */
+public int getMinExposureCompensation()
+
+/**
+ * 获取设备支持的最大曝光率
+ *
+ * @return 最大曝光率
+ */
+public int getMaxExposureCompensation()
 ```
 
 <a id="6.3"></a>
@@ -1829,6 +1865,14 @@ public boolean setPreviewMirror(boolean mirror);
 public boolean setEncodingMirror(boolean mirror);
 ```
 
+**当前的镜像逻辑如下：**
+
+在初始化和切换摄像头的场景下镜像状态会重置，前置会重置到 CameraStreamingSetting 里配置的镜像状态，后置预览和编码默认都是非镜像状态（EncodingMirror = false）
+
+**初始化时镜像的现象描述：**
+
+在默认预览和编码都是非镜像或镜像的场景下，预览和观众端看到的画面方向是一致的，否则是相反的
+
 ### 6.4.22 设置房间内音频流的音量回调
 
 ```java
@@ -1876,23 +1920,54 @@ public interface RTCStreamStatsCallback {
 }
 ```
 
+### 6.4.24 调整曝光率
+
+```java
+/**
+ * 设置曝光率的大小
+ *
+ * 设备支持的曝光率可以通过 getMinExposureCompensation() 和 getMaxExposureCompensation() 获取，如果两者返回值都是 0，则不支持曝光率的调整
+ *
+ * @param value 曝光值
+ */
+public void setExposureCompensation(int value)
+
+/**
+ * 获取设备支持的最小曝光率
+ *
+ * @return 最小曝光率
+ */
+public int getMinExposureCompensation()
+
+/**
+ * 获取设备支持的最大曝光率
+ *
+ * @return 最大曝光率
+ */
+public int getMaxExposureCompensation()
+```
+
 <a id="6.5"></a>
 
 ## 6.5 参数配置/状态获取
 
 ### 6.5.1 CameraStreamingSetting
 
-`CameraStreamingSetting` 用于配置内置的 Camera 参数，包括：分辨率、对焦模式、美颜等等，详细用法可以参考我们推流SDK的官方文档：[摄像头参数配置](https://github.com/pili-engineering/PLDroidCameraStreaming/wiki/5-功能使用#5.1)
+`CameraStreamingSetting` 用于配置内置的 Camera 参数，包括：分辨率、对焦模式、美颜等等，详细用法可以参考我们推流 SDK 的官方文档：[摄像头参数配置](https://github.com/pili-engineering/PLDroidCameraStreaming/wiki/5-功能使用#5.1)
 
-### 6.5.2 StreamingProfile
+### 6.5.2 MicrophoneStreamingSetting
+
+`MicrophoneStreamingSetting` 用于配置麦克风相关的参数，包括：采样率、通道数、蓝牙麦克风支持等，详细用法可以参考我们推流 SDK 的官方文档：[麦克风参数配置](https://github.com/pili-engineering/PLDroidCameraStreaming/wiki/5-功能使用#5.2)
+
+### 6.5.3 StreamingProfile
 
 `StreamingProfile` 用于配置推流参数，包括推流的地址、编码参数等等，详细用法可以参考我们推流SDK的官方文档：[推流参数设置](https://github.com/pili-engineering/PLDroidCameraStreaming/wiki/5-功能使用#5.3)
 
-### 6.5.3 RTCConferenceOptions
+### 6.5.4 RTCConferenceOptions
 
 `RTCConferenceOptions` 用于配置连麦会话的参数，包括连麦的码率、帧率、软编硬编等，其定义如下：
 
-#### 6.5.3.1 设置连麦编码器的软编硬编
+#### 6.5.4.1 设置连麦编码器的软编硬编
 
 ```java
 /**
@@ -1905,7 +1980,7 @@ public interface RTCStreamStatsCallback {
 public RTCConferenceOptions setHWCodecEnabled(boolean enabled)
 ```
 
-#### 6.5.3.2 设置连麦编码器输出的码率
+#### 6.5.4.2 设置连麦编码器输出的码率
 
 ```java
 /**
@@ -1920,7 +1995,7 @@ public RTCConferenceOptions setHWCodecEnabled(boolean enabled)
 public RTCConferenceOptions setVideoBitrateRange(int minBitrateInBps, int maxBitrateInBps);
 ```
 
-#### 6.5.3.3 设置连麦编码器输出的帧率
+#### 6.5.4.3 设置连麦编码器输出的帧率
 
 ```java
 /**
@@ -1932,7 +2007,7 @@ public RTCConferenceOptions setVideoBitrateRange(int minBitrateInBps, int maxBit
 public RTCConferenceOptions setVideoEncodingFps(int fps);
 ```
 
-#### 6.5.3.4 设置连麦编码器输出的画面比例
+#### 6.5.4.4 设置连麦编码器输出的画面比例
 
 ```java
 /**
@@ -1944,7 +2019,7 @@ public RTCConferenceOptions setVideoEncodingFps(int fps);
 public RTCConferenceOptions setVideoEncodingSizeRatio(VIDEO_ENCODING_SIZE_RATIO ratio);
 ```
 
-#### 6.5.3.5 设置连麦编码器输出的画面尺寸级别
+#### 6.5.4.5 设置连麦编码器输出的画面尺寸级别
 
 ```java
 /**
@@ -1963,7 +2038,7 @@ public RTCConferenceOptions setVideoEncodingSizeRatio(VIDEO_ENCODING_SIZE_RATIO 
 public RTCConferenceOptions setVideoEncodingSizeLevel(int level);
 ```
 
-#### 6.5.3.8 获取连麦编码器输出的画面尺寸
+#### 6.5.4.6 获取连麦编码器输出的画面尺寸
 
 画面比例和尺寸级别最终对应的图像宽高值的关系如下表所示：
 
@@ -1994,11 +2069,11 @@ public int getVideoEncodingWidth();
 public int getVideoEncodingHeight();
 ```
 
-### 6.5.4 RTCVideoWindow
+### 6.5.5 RTCVideoWindow
 
 `RTCVideoWindow` 是连麦画面的窗口对象，用来管理窗口对象以及配置合流参数，注：只有主播需要配置合流画面的位置和大小。
 
-### 6.5.4.1 构造函数
+### 6.5.5.1 构造函数
 
 ```java
 /**
@@ -2017,7 +2092,7 @@ public RTCVideoWindow(RTCSurfaceView surfaceView);
 public RTCVideoWindow(View parentView, RTCSurfaceView surfaceView);
 ```
 
-#### 6.5.4.2 配置合流参数(方法一)
+#### 6.5.5.2 配置合流参数(方法一)
 
 ```java
 /**
@@ -2037,7 +2112,7 @@ public void setRelativeMixOverlayRect(float x, float y, float w, float h);
 连麦窗口的大小是：320 x 240
 连麦窗口的位置是：x 坐标位于主窗口从左到右的 1/2 处，y 坐标位于主窗口从上往下的 3/10 处。
 
-#### 6.5.4.3 配置合流参数(方法二)
+#### 6.5.5.3 配置合流参数(方法二)
 
 ```java
 /**
@@ -2052,7 +2127,7 @@ public void setRelativeMixOverlayRect(float x, float y, float w, float h);
 public void setAbsolutetMixOverlayRect(int x, int y, int w, int h);
 ```
 
-#### 6.5.4.4 配置窗口的上下层级
+#### 6.5.5.4 配置窗口的上下层级
 
 ```java
 /**
@@ -2062,7 +2137,7 @@ public void setZOrderMediaOverlay(boolean isMediaOverlay);
 public void setZOrderOnTop(boolean onTop);
 ```
 
-#### 6.5.4.5 优化合流参数的配置
+#### 6.5.5.5 优化合流参数的配置
 
 合理的配置连麦画面的尺寸和合流参数的大小，可以显著降低主播端的 CPU、内存、带宽和功耗。
 
@@ -2078,7 +2153,7 @@ public void setZOrderOnTop(boolean onTop);
 
 主播端配置的预览尺寸尽量要匹配推流的尺寸，比如：如果推流的编码尺寸配置的是 848 x 480，那么预览时摄像头采集的尺寸也要尽量和 848 x 480 相匹配，这样可以避免或者减少主播端合流时对连麦画面进行拉伸，显著降低主播端的 CPU 和功耗，同时会提高连麦推流的流畅性。
 
-#### 6.5.5 RTCConferenceStateChangedListener
+#### 6.5.6 RTCConferenceStateChangedListener
 
 `ConferenceStateChangedListener` 用于监听连麦过程的相关回调消息，其定义如下：
 
@@ -2161,7 +2236,7 @@ public enum RTCStreamingState {
 }
 ```
 
-#### 6.5.6 RTCUserEventListener
+#### 6.5.7 RTCUserEventListener
 
 `RTCUserEventListener` 用于监听连麦事件，包括远端用户加入连麦、远端用户退出连麦等。
 
@@ -2179,7 +2254,7 @@ void onUserJoinConference(String userId);
 void onUserLeaveConference(String userId);
 ```
 
-#### 6.5.7 RTCRemoteWindowEventListener
+#### 6.5.8 RTCRemoteWindowEventListener
 
 `RTCRemoteWindowEventListener` 用于监听远端窗口显示/隐藏事件。
 
@@ -2206,7 +2281,7 @@ void onRemoteWindowDetached(RTCVideoWindow window, String remoteUserId);
 void onFirstRemoteFrameArrived(String remoteUserId);
 ```
 
-#### 6.5.8 StreamStatusCallback
+#### 6.5.9 StreamStatusCallback
 
 `StreamStatusCallback` 用于监听推流统计信息回调，其定义如下：
 
@@ -2247,7 +2322,7 @@ public static class StreamStatus {
 }
 ```
 
-#### 6.5.9 StreamingStateChangedListener
+#### 6.5.10 StreamingStateChangedListener
 
 `StreamingStateChangedListener` 用于监听推流的状态信息回调，其定义如下：
 
@@ -2343,7 +2418,7 @@ public enum StreamingState {
 }
 ```
 
-#### 6.5.10 RTCAudioLevelCallback
+#### 6.5.11 RTCAudioLevelCallback
 
 `RTCAudioLevelCallback` 用于监听当前连麦房间里所有人的音量，其定义如下：
 
@@ -2359,7 +2434,7 @@ public interface RTCAudioLevelCallback {
 }
 ```
 
-#### 6.5.11 RTCFrameMixedCallback
+#### 6.5.12 RTCFrameMixedCallback
 
 当有新的视频／音频帧合流完成时，`RTCFrameMixedCallback` 会被触发。其定义如下：
 
@@ -2391,7 +2466,7 @@ public interface RTCFrameMixedCallback {
     void onAudioFrameMixed(byte[] pcm, long timestamp);
 ```
 
-#### 6.5.12 RTCRemoteAudioEventListener
+#### 6.5.13 RTCRemoteAudioEventListener
 
 `RTCRemoteAudioEventListener` 用于监听远端音频的发布/取消发布的事件。因为直播连麦场景下默认会发布音频，故该 listener 仅用于纯连麦互动场景，不应用于直播连麦场景
 
@@ -2409,7 +2484,7 @@ void onRemoteAudioPublished(String userId);
 void onRemoteAudioUnpublished(String userId);
 ```
 
-### 6.5.13 AudioSourceCallback
+### 6.5.14 AudioSourceCallback
 
 用户可以通过 `AudioSourceCallback` 回调接口，获取当前音频数据，实现自定义音频数据处理。
 
@@ -2430,7 +2505,7 @@ public interface AudioSourceCallback {
 }
 ```
 
-#### 6.5.14 RTCServerRegion
+#### 6.5.15 RTCServerRegion
 
 `RTCServerRegion` 用于设置首选连接服务器的区域码，具体内容如下：
 
@@ -2652,6 +2727,17 @@ public interface SurfaceTextureCallback {
 <a id="9"></a>
 
 # 9. 历史记录
+
+- **2.0.2**
+  - 发布了 pldroid-rtc-streaming-2.0.2.jar
+  - 更新了 libpldroid_rtc_streaming.so
+  - 更新了 libpldroid_mmprocessing.so
+  - 新增手动配置曝光度的接口
+  - 修复直播过程中退后台，再回到前台，无法继续推流的问题
+  - 修复个别机型使用蓝牙连麦断开再连接会外放的问题
+  - 修复连麦者被踢之后调用 stopConference 无效的问题
+  - 修复连麦下使用 StreamingProfile 内置分辨率配置推流编码分辨率花屏的问题
+  - 优化镜像逻辑
 
 - **2.0.1**
   - 发布了 pldroid-rtc-streaming-2.0.1.jar

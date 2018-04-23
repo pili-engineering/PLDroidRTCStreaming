@@ -31,16 +31,12 @@ import com.qiniu.pili.droid.rtcstreaming.demo.R;
 import com.qiniu.pili.droid.rtcstreaming.demo.core.QiniuAppServer;
 import com.qiniu.pili.droid.streaming.AVCodecType;
 import com.qiniu.pili.droid.streaming.CameraStreamingSetting;
-import com.qiniu.pili.droid.streaming.MicrophoneStreamingSetting;
 import com.qiniu.pili.droid.streaming.StreamStatusCallback;
 import com.qiniu.pili.droid.streaming.StreamingProfile;
 import com.qiniu.pili.droid.streaming.StreamingSessionListener;
 import com.qiniu.pili.droid.streaming.StreamingState;
 import com.qiniu.pili.droid.streaming.StreamingStateChangedListener;
 import com.qiniu.pili.droid.streaming.WatermarkSetting;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.util.List;
@@ -125,9 +121,6 @@ public class PKAnchorActivity extends AppCompatActivity {
             cameraStreamingSetting.setVideoFilter(CameraStreamingSetting.VIDEO_FILTER_TYPE.VIDEO_FILTER_BEAUTY); // set the beauty on/off
         }
 
-        MicrophoneStreamingSetting microphoneStreamingSetting = new MicrophoneStreamingSetting();
-        microphoneStreamingSetting.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
-
         /**
          * Step 3: Must disable this options in PK mode
          */
@@ -205,7 +198,7 @@ public class PKAnchorActivity extends AppCompatActivity {
         /**
          * Step 11: do prepare
          */
-        mRTCStreamingManager.prepare(cameraStreamingSetting, microphoneStreamingSetting,  watermarksetting, mStreamingProfile);
+        mRTCStreamingManager.prepare(cameraStreamingSetting, null,  watermarksetting, mStreamingProfile);
 
         mProgressDialog = new ProgressDialog(this);
     }

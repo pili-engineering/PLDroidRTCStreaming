@@ -3,7 +3,6 @@ package com.qiniu.pili.droid.rtcstreaming.demo.activity.streaming;
 import android.app.ProgressDialog;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -29,15 +28,11 @@ import com.qiniu.pili.droid.rtcstreaming.RTCVideoWindow;
 import com.qiniu.pili.droid.rtcstreaming.demo.R;
 import com.qiniu.pili.droid.rtcstreaming.demo.core.QiniuAppServer;
 import com.qiniu.pili.droid.streaming.AVCodecType;
-import com.qiniu.pili.droid.streaming.MicrophoneStreamingSetting;
 import com.qiniu.pili.droid.streaming.StreamStatusCallback;
 import com.qiniu.pili.droid.streaming.StreamingProfile;
 import com.qiniu.pili.droid.streaming.StreamingSessionListener;
 import com.qiniu.pili.droid.streaming.StreamingState;
 import com.qiniu.pili.droid.streaming.StreamingStateChangedListener;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.util.List;
@@ -105,10 +100,6 @@ public class RTCAudioStreamingActivity extends AppCompatActivity {
         options.setHWCodecEnabled(!isSwCodec);
         mRTCStreamingManager.setConferenceOptions(options);
 
-        MicrophoneStreamingSetting setting = new MicrophoneStreamingSetting();
-        setting.setBluetoothSCOEnabled(false);
-        setting.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
-
         // the anchor must configure the `StreamingProfile`
         if (mRole == QiniuAppServer.RTC_ROLE_ANCHOR) {
             mRTCStreamingManager.setStreamStatusCallback(mStreamStatusCallback);
@@ -118,7 +109,7 @@ public class RTCAudioStreamingActivity extends AppCompatActivity {
             mStreamingProfile = new StreamingProfile();
             mStreamingProfile.setAudioQuality(StreamingProfile.AUDIO_QUALITY_MEDIUM2)
                     .setEncoderRCMode(StreamingProfile.EncoderRCModes.QUALITY_PRIORITY);
-            mRTCStreamingManager.prepare(setting,  mStreamingProfile);
+            mRTCStreamingManager.prepare(null,  mStreamingProfile);
         } else {
             /**
              * The RTCVideoWindow is used to show the anchor's video
@@ -128,7 +119,7 @@ public class RTCAudioStreamingActivity extends AppCompatActivity {
             mRTCStreamingManager.addRemoteWindow(remoteAnchorView);
 
             mControlButton.setText("开始连麦");
-            mRTCStreamingManager.prepare(setting);
+            mRTCStreamingManager.prepare(null);
         }
 
         mProgressDialog = new ProgressDialog(this);
