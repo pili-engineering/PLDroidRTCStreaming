@@ -939,6 +939,7 @@ public boolean setEncodingMirror(boolean mirror);
 在初始化和切换摄像头的场景下镜像状态会重置，前置会重置到 CameraStreamingSetting 里配置的镜像状态，后置预览和编码默认都是非镜像状态（EncodingMirror = false）
 
 **初始化时镜像的现象描述：**
+
 在默认预览和编码都是非镜像或镜像的场景下，预览和观众端看到的画面方向是一致的，否则是相反的
 
 ### 6.2.23 设置房间内音频流的音量回调
@@ -1869,6 +1870,7 @@ public boolean setEncodingMirror(boolean mirror);
 在初始化和切换摄像头的场景下镜像状态会重置，前置会重置到 CameraStreamingSetting 里配置的镜像状态，后置预览和编码默认都是非镜像状态（EncodingMirror = false）
 
 **初始化时镜像的现象描述：**
+
 在默认预览和编码都是非镜像或镜像的场景下，预览和观众端看到的画面方向是一致的，否则是相反的
 
 ### 6.4.22 设置房间内音频流的音量回调
