@@ -552,11 +552,8 @@ public class ConferenceActivity extends AppCompatActivity {
          @Override
          public boolean onSingleTapUp(MotionEvent e) {
              if (mIsPreviewOnTop) {
-                 if (mIsWindowAOnBottom) {
-                     mRTCConferenceManager.switchRenderView(mCameraPreviewFrameView, mRTCVideoWindowA.getRTCSurfaceView());
-                 } else {
-                     mRTCConferenceManager.switchRenderView(mCameraPreviewFrameView, mRTCVideoWindowB.getRTCSurfaceView());
-                 }
+                 RTCVideoWindow window = mIsWindowAOnBottom ? mRTCVideoWindowA : mRTCVideoWindowB;
+                 mRTCConferenceManager.switchRenderView(mCameraPreviewFrameView, window.getRTCSurfaceView());
                  mIsPreviewOnTop = false;
                  mIsWindowAOnBottom = false;
                  return true;
