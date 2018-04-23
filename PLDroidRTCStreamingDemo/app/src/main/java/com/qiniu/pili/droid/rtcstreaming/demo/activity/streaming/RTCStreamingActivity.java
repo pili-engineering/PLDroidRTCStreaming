@@ -6,7 +6,6 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.hardware.Camera;
-import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,7 +20,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,7 +46,6 @@ import com.qiniu.pili.droid.rtcstreaming.demo.ui.RotateLayout;
 import com.qiniu.pili.droid.rtcstreaming.demo.utils.StreamingSettings;
 import com.qiniu.pili.droid.streaming.AVCodecType;
 import com.qiniu.pili.droid.streaming.CameraStreamingSetting;
-import com.qiniu.pili.droid.streaming.MicrophoneStreamingSetting;
 import com.qiniu.pili.droid.streaming.StreamStatusCallback;
 import com.qiniu.pili.droid.streaming.StreamingProfile;
 import com.qiniu.pili.droid.streaming.StreamingSessionListener;
@@ -203,9 +200,6 @@ public class RTCStreamingActivity extends AppCompatActivity {
             cameraStreamingSetting.setVideoFilter(CameraStreamingSetting.VIDEO_FILTER_TYPE.VIDEO_FILTER_BEAUTY); // set the beauty on/off
         }
 
-        MicrophoneStreamingSetting microphoneStreamingSetting = new MicrophoneStreamingSetting();
-        microphoneStreamingSetting.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
-
         /**
          * Step 3: create streaming manager and set listeners
          */
@@ -324,7 +318,7 @@ public class RTCStreamingActivity extends AppCompatActivity {
                                     : (mBitrateControl.equals("manual") ? StreamingProfile.BitrateAdjustMode.Manual
                                     : StreamingProfile.BitrateAdjustMode.Disable));
 
-            //Set AVProfile Manually, which will cover `setXXXQuality`
+            // Set AVProfile Manually, which will cover `setXXXQuality`
             if (isCustomSettingEnabled) {
                 StreamingProfile.AudioProfile aProfile = new StreamingProfile.AudioProfile(44100, 96 * 1024);
                 StreamingProfile.VideoProfile vProfile = new StreamingProfile.VideoProfile(mEncodingFps, mEncodingBitrate, mEncodingFps * 3, StreamingSettings.VIDEO_QUALITY_PROFILES_MAPPING[getIntent().getIntExtra("videoProfile", 0)]);
@@ -332,6 +326,8 @@ public class RTCStreamingActivity extends AppCompatActivity {
                 mStreamingProfile.setAVProfile(avProfile);
             }
 
+            // options.getVideoEncodingWidth() > options.getVideoEncodingHeight() defaulted, so if we use StreamingProfile.setPreferredVideoEncodingSize
+            // to config the encoding size,we should pass the parameters flexibility according to the orientation
             if (isLandscape) {
                 mStreamingProfile.setEncodingOrientation(StreamingProfile.ENCODING_ORIENTATION.LAND);
                 mStreamingProfile.setPreferredVideoEncodingSize(options.getVideoEncodingWidth(), options.getVideoEncodingHeight());
@@ -348,10 +344,10 @@ public class RTCStreamingActivity extends AppCompatActivity {
                         .setAlpha(100)
                         .setCustomPosition(0.5f, 0.5f);
             }
-            mRTCStreamingManager.prepare(cameraStreamingSetting, microphoneStreamingSetting, watermarksetting, mStreamingProfile);
+            mRTCStreamingManager.prepare(cameraStreamingSetting, null, watermarksetting, mStreamingProfile);
         } else {
             mControlButton.setText("开始连麦");
-            mRTCStreamingManager.prepare(cameraStreamingSetting, microphoneStreamingSetting);
+            mRTCStreamingManager.prepare(cameraStreamingSetting, null);
         }
 
         mProgressDialog = new ProgressDialog(this);
@@ -453,6 +449,8 @@ public class RTCStreamingActivity extends AppCompatActivity {
         }
         Log.i(TAG, "switchCamera:" + facingId);
         mRTCStreamingManager.switchCamera(facingId);
+        mIsEncodingMirror = false;
+        mIsPreviewMirror = false;
     }
 
     public void onClickAdjustBitrate(View v) {
