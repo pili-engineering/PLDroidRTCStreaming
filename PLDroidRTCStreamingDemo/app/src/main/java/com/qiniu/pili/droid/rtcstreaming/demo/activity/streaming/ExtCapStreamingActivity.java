@@ -172,12 +172,13 @@ public class ExtCapStreamingActivity extends AppCompatActivity {
             mStreamingProfile = new StreamingProfile();
             mStreamingProfile.setVideoQuality(StreamingProfile.VIDEO_QUALITY_MEDIUM2)
                     .setAudioQuality(StreamingProfile.AUDIO_QUALITY_MEDIUM1)
-                    .setEncoderRCMode(StreamingProfile.EncoderRCModes.QUALITY_PRIORITY)
-                    .setPreferredVideoEncodingSize(options.getVideoEncodingWidth(), options.getVideoEncodingHeight());
+                    .setEncoderRCMode(StreamingProfile.EncoderRCModes.QUALITY_PRIORITY);
             if (isLandscape) {
                 mStreamingProfile.setEncodingOrientation(StreamingProfile.ENCODING_ORIENTATION.LAND);
+                mStreamingProfile.setPreferredVideoEncodingSize(options.getVideoEncodingWidth(), options.getVideoEncodingHeight());
             } else {
                 mStreamingProfile.setEncodingOrientation(StreamingProfile.ENCODING_ORIENTATION.PORT);
+                mStreamingProfile.setPreferredVideoEncodingSize(options.getVideoEncodingHeight(), options.getVideoEncodingWidth());
             }
             mRTCStreamingManager.prepare(mStreamingProfile);
         } else {
