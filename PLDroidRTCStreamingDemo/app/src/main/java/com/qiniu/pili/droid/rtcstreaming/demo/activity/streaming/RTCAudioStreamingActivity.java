@@ -16,6 +16,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.qiniu.pili.droid.rtcstreaming.RTCAudioLevelCallback;
 import com.qiniu.pili.droid.rtcstreaming.RTCAudioSource;
 import com.qiniu.pili.droid.rtcstreaming.RTCConferenceOptions;
 import com.qiniu.pili.droid.rtcstreaming.RTCConferenceState;
@@ -42,7 +43,7 @@ import java.util.List;
  */
 public class RTCAudioStreamingActivity extends AppCompatActivity {
 
-    private static final String TAG = "RTCStreamingActivity";
+    private static final String TAG = "RTCAudioStreamingActivity";
     private static final int MESSAGE_ID_RECONNECTING = 0x01;
 
     private TextView mStatusTextView;
@@ -62,6 +63,7 @@ public class RTCAudioStreamingActivity extends AppCompatActivity {
     private boolean mIsPublishStreamStarted = false;
     private boolean mIsConferenceStarted = false;
     private boolean mIsInReadyState = false;
+    private boolean mIsAudioLevelCallbackEnabled = false;
 
     private int mRole;
     private String mRoomName;
@@ -76,6 +78,7 @@ public class RTCAudioStreamingActivity extends AppCompatActivity {
         mRoomName = getIntent().getStringExtra("roomName");
         boolean isSwCodec = getIntent().getBooleanExtra("swcodec", true);
         boolean isLandscape = getIntent().getBooleanExtra("orientation", false);
+        mIsAudioLevelCallbackEnabled = getIntent().getBooleanExtra("audioLevelCallback", false);
         setRequestedOrientation(isLandscape ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         mControlButton = (Button) findViewById(R.id.ControlButton);
@@ -95,6 +98,10 @@ public class RTCAudioStreamingActivity extends AppCompatActivity {
         mRTCStreamingManager.setConferenceStateListener(mRTCStreamingStateChangedListener);
         mRTCStreamingManager.setUserEventListener(mRTCUserEventListener);
         mRTCStreamingManager.setDebugLoggingEnabled(false);
+
+        if (mIsAudioLevelCallbackEnabled) {
+            mRTCStreamingManager.setAudioLevelCallback(mRTCAudioLevelCallback);
+        }
 
         RTCConferenceOptions options = new RTCConferenceOptions();
         options.setHWCodecEnabled(!isSwCodec);
@@ -184,6 +191,7 @@ public class RTCAudioStreamingActivity extends AppCompatActivity {
                 showToast(getString(R.string.start_conference), Toast.LENGTH_SHORT);
                 updateControlButtonText();
                 mIsConferenceStarted = true;
+                mRTCStreamingManager.setAudioLevelMonitorEnabled(mIsAudioLevelCallbackEnabled);
                 /**
                  * Because `startConference` is called in child thread
                  * So we should check if the activity paused.
@@ -450,6 +458,13 @@ public class RTCAudioStreamingActivity extends AppCompatActivity {
         public void onUserLeaveConference(String remoteUserId) {
             Log.d(TAG, "onUserLeaveConference: " + remoteUserId);
             showToast(getString(R.string.user_leave_conference), Toast.LENGTH_SHORT);
+        }
+    };
+
+    private RTCAudioLevelCallback mRTCAudioLevelCallback = new RTCAudioLevelCallback() {
+        @Override
+        public void onAudioLevelChanged(String userId, int level) {
+            Log.d(TAG, "onAudioLevelChanged: userId = " + userId + " level = " + level);
         }
     };
 

@@ -6,30 +6,25 @@ PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互
 
 ## 1.1 最新版内容提要
 
-**[Android] 连麦 SDK v2.0.2 发布**
+**[Android] 连麦 SDK v2.0.3 发布**
 
 PLDroidRTCStreaming 是七牛推出的一款适用于 Android 平台的连麦互动 SDK，支持低延时音视频通话、RTMP 直播推流，可快速开发一对一视频聊天、多人视频会议、网红直播连麦、狼人杀、娃娃机等应用，接口简单易用，支持高度定制以及二次开发。
 
 **版本**
 
-- 发布了 pldroid-rtc-streaming-2.0.2.jar
+- 发布了 pldroid-rtc-streaming-2.0.3.jar
 - 更新了 libpldroid_rtc_streaming.so
-- 更新了 libpldroid_mmprocessing.so
-
-**功能**
-
-- 新增手动配置曝光度的接口
 
 **缺陷**
 
-- 修复直播过程中退后台，再回到前台，无法继续推流的问题
-- 修复个别机型使用蓝牙连麦断开再连接会外放的问题
-- 修复连麦者被踢之后调用 stopConference 无效的问题
-- 修复连麦下使用 StreamingProfile 内置分辨率配置推流编码分辨率花屏的问题
-
-**优化**
-
-- 优化镜像逻辑
+- 修复数据上报，集合分辨率不正常的问题
+- 修复个别机型连麦时间戳不正常的问题
+- 修复频繁进出房间时的 eglContext2 Failed 的问题
+- 修复小米 max2 连麦推流的回声问题
+- 修复在预览界面动态切换横竖屏后连麦花屏的问题
+- 修复个别场景下音量回调不生效的问题
+- 修复偶现的收不到 VIDEO_ON 回调的问题
+- 修复连麦下停止推流再重新推流，远端小窗口消失的问题
 
 **更新注意事项**
 
@@ -939,7 +934,6 @@ public boolean setEncodingMirror(boolean mirror);
 在初始化和切换摄像头的场景下镜像状态会重置，前置会重置到 CameraStreamingSetting 里配置的镜像状态，后置预览和编码默认都是非镜像状态（EncodingMirror = false）
 
 **初始化时镜像的现象描述：**
-
 在默认预览和编码都是非镜像或镜像的场景下，预览和观众端看到的画面方向是一致的，否则是相反的
 
 ### 6.2.23 设置房间内音频流的音量回调
@@ -1870,7 +1864,6 @@ public boolean setEncodingMirror(boolean mirror);
 在初始化和切换摄像头的场景下镜像状态会重置，前置会重置到 CameraStreamingSetting 里配置的镜像状态，后置预览和编码默认都是非镜像状态（EncodingMirror = false）
 
 **初始化时镜像的现象描述：**
-
 在默认预览和编码都是非镜像或镜像的场景下，预览和观众端看到的画面方向是一致的，否则是相反的
 
 ### 6.4.22 设置房间内音频流的音量回调
@@ -2727,6 +2720,18 @@ public interface SurfaceTextureCallback {
 <a id="9"></a>
 
 # 9. 历史记录
+
+- **2.0.3**
+  - 发布了 pldroid-rtc-streaming-2.0.3.jar
+  - 更新了 libpldroid_rtc_streaming.so
+  - 修复数据上报，集合分辨率不正常的问题
+  - 修复个别机型连麦时间戳不正常的问题
+  - 修复频繁进出房间时的 eglContext2 Failed 的问题
+  - 修复小米 max2 连麦推流的回声问题
+  - 修复在预览界面动态切换横竖屏后连麦花屏的问题
+  - 修复个别场景下音量回调不生效的问题
+  - 修复偶现的收不到 VIDEO_ON 回调的问题
+  - 修复连麦下停止推流再重新推流，远端小窗口消失的问题
 
 - **2.0.2**
   - 发布了 pldroid-rtc-streaming-2.0.2.jar

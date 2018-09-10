@@ -24,7 +24,7 @@ public class QiniuAppServer implements AppServerBase {
     public static final int RTC_ROLE_ANCHOR = 0x01;
     public static final int RTC_ROLE_VICE_ANCHOR = 0x02;
 
-    private static final String APP_SERVER_ADDR = "https://api.pdex-service.com";
+    private static final String APP_SERVER_ADDR = "https://api-demo-v2.qnsdk.com";
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     // 用户 ID 可以使用业务上的用户 ID
